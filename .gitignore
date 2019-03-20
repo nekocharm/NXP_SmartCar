@@ -1,0 +1,5 @@
+/iar/*
+!/iar/*.eww
+!/iar/*.ewd
+!/iar/*.ewp
+!/iar/*.ewt
