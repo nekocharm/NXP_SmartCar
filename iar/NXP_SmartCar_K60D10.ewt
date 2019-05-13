@@ -257,6 +257,36 @@
   <group>
     <name>app</name>
     <file>
+      <name>$PROJ_DIR$\..\app\camera_deal.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\app\camera_deal.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\app\control.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\app\control.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\app\display.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\app\display.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\app\eagle.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\app\eagle.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\app\image_deal.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\app\image_deal.h</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\app\include.h</name>
     </file>
     <file>
@@ -266,10 +296,61 @@
       <name>$PROJ_DIR$\..\app\init.h</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\..\app\isr.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\app\isr.h</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\app\k60_card.h</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\..\app\magnetic.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\app\magnetic.h</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\app\NXP_SmartCar.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\app\oled.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\app\oled.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\app\OV7725_REG.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\app\par.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\app\par.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\app\SCCB.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\app\SCCB.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\app\Speed_Get.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\app\Speed_Get.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\app\UART.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\app\UART.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\app\ultrasonic.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\app\ultrasonic.h</name>
     </file>
   </group>
   <group>
@@ -293,6 +374,9 @@
       </file>
       <file>
         <name>$PROJ_DIR$\..\..\..\lib\common\io.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\lib\common\lib_def.h</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\..\..\lib\common\printf.c</name>
@@ -324,6 +408,9 @@
     </group>
     <group>
       <name>CPU</name>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\lib\CPU\MK60D10.h</name>
+      </file>
       <file>
         <name>$PROJ_DIR$\..\..\..\lib\CPU\startup_K60D10.s</name>
       </file>

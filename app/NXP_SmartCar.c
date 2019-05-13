@@ -20,10 +20,87 @@
 
 void main (void)
 {
-
-  while(1)
+  DisableInterrupts;
+  init();
+  //LPLD_UART_PutChar(UART4, 0x30);
+  EnableInterrupts;
+  switch (dip)
   {
-
-  } 
+    case 0:
+      while(1)
+      {
+        GUI_wrlval(0, 0,(int32)dip,4,0);
+      }
+    case 1:
+      while(1)
+      {
+        GUI_wrlval(0, 0,(int32)dip,4,0);
+        if(image_getted)
+        {
+          image_getted=0;  
+          image_select((uint8 *)Image_Data, (uint8 *)Pix_Data);
+          shanwai_send(1);
+        } 
+      }
+    case 2:
+      while(1)
+      { 
+        GUI_wrlval(0, 0,(int32)dip,4,0);
+      }
+    /*****************摄像头运行******************/
+    case 16:
+      GUI_wrlval(0, 0,(int32)dip,4,0);
+      while(1)
+      {
+        GO1();
+        display(1);
+        shanwai_wave();
+      }
+    /*********************************************/
+    
+    /******************电磁运行*******************/
+    case 32:
+      GUI_wrlval(0, 0,(int32)dip,4,0);
+      while(1)
+      {
+        GO2();
+      }
+    /*********************************************/
+    
+    /******************摄像头和电磁运行*******************/
+    case 64:
+      GUI_wrlval(0, 0,(int32)dip,4,0);
+      while(1)
+      {
+        GO3();
+      }
+    /*********************************************/
+  }
 }
-
+void GO1()
+{
+  if(image_getted)
+  {
+    image_getted=0;  
+    image_deal();
+    speedcontrol();
+    Servo_PD(differ);
+   }
+}
+void GO2()
+{
+  Sample();
+  magnet_deal();
+  speedcontrol();
+  Servo_PD(differ);
+}
+void GO3()
+{
+  if(image_getted)
+  {
+    image_getted=0;  
+    image_deal();
+    speedcontrol();
+    Servo_PD(differ);
+   }
+}
