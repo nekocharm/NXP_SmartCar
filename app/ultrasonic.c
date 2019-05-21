@@ -1,13 +1,12 @@
 #include "include.h"
 
-extern int32 Distance;
 
-int32 ultrasonic_deal()
+void ultrasonic_deal()
 {
+  PIT->CHANNEL[PIT2].TCTRL &= ~PIT_TCTRL_TEN_MASK;//停止定时器
+  PIT->CHANNEL[PIT2].LDVAL = 20;//20us
   Trig=1;
-  Delay_Us(20);
-  Trig=0;
-  return Distance;
+	PIT->CHANNEL[PIT2].TCTRL |= PIT_TCTRL_TEN_MASK;//启动定时器
 }
 /*延时*/
 void Delay_Us(uint32 us)

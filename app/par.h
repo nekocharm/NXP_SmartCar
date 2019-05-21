@@ -1,1 +1,1 @@
-void par();
+void par(uint8);

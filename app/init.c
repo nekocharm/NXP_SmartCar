@@ -40,7 +40,6 @@ void init()
   Encoder_init();
   uart_init();
   ultrasonic_init(); 
-  par();
   pit0_init();
   
 }
@@ -94,12 +93,12 @@ void Servo_init()
   //FTM_InitTypeDef servo_init_struct;
   servo_init_struct.FTM_Ftmx = FTM1;
   servo_init_struct.FTM_Mode = FTM_MODE_PWM ;
-  servo_init_struct.FTM_PwmFreq = 100 ;
-  servo_init_struct.FTM_PwmDeadtimeCfg = DEADTIME_CH01; 
+  servo_init_struct.FTM_PwmFreq = 75 ;//100
+  //servo_init_struct.FTM_PwmDeadtimeCfg = DEADTIME_CH01; 
+  //servo_init_struct.FTM_PwmDeadtimeVal=10;
   LPLD_FTM_Init(servo_init_struct);
   
-  LPLD_FTM_PWM_Enable( FTM1,FTM_Ch1,ServoMid, PTB1, ALIGN_LEFT );//ServoMid=1500
-  //LPLD_FTM_PWM_ChangeDuty(FTM1, FTM_Ch1,ServoMid);
+  LPLD_FTM_PWM_Enable( FTM1,FTM_Ch1,ServoMid, PTB1, ALIGN_LEFT );//ServoMid=1438
 }
 
 /*电机调速*/
@@ -231,7 +230,7 @@ void switch_init()
 /*中断优先级设置初始化*/
 void Nvic_Init()
 {
-  nvic_struct.NVIC_IRQChannel=PIT0_IRQn; //场中断
+  nvic_struct.NVIC_IRQChannel=PIT0_IRQn; //定时器中断
   nvic_struct.NVIC_IRQChannelGroupPriority=NVIC_PriorityGroup_3;
   nvic_struct.NVIC_IRQChannelPreemptionPriority=0;
   nvic_struct.NVIC_IRQChannelSubPriority=0;
@@ -266,13 +265,13 @@ void ultrasonic_init()
   pit0_init_struct.PIT_PeriodUs = 0xffffffff; 
   LPLD_PIT_Init(pit0_init_struct);  
   LPLD_PIT_EnableIrq(pit0_init_struct);
-  /*
+  
   pit0_init_struct.PIT_Pitx=PIT2;
   pit0_init_struct.PIT_PeriodUs=20;
   pit0_init_struct.PIT_Isr=ultr_isr;
   LPLD_PIT_Init(pit0_init_struct);
   LPLD_PIT_EnableIrq(pit0_init_struct);
-  PIT->CHANNEL[PIT2].TCTRL &= ~PIT_TCTRL_TEN_MASK;//停止定时器*/
+  PIT->CHANNEL[PIT2].TCTRL &= ~PIT_TCTRL_TEN_MASK;//停止定时器
   
 }
 

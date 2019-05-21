@@ -2,7 +2,7 @@
 
 extern PIT_InitTypeDef pit0_init_struct;
 
-extern int32 Distance=1000;
+extern int32 Distance=3000;
 
 uint8 TIME0flag_1ms=0;
 uint8 TIME0flag_2ms=0;
@@ -30,6 +30,8 @@ void pit0_isr(void)                               //测速子程序
     Uart_Ms_Counter = 999;
   if(count_pit0%2==0)
     TIME0flag_2ms=1; 
+  
+    
   if(count_pit0%5==0)
   {
     TIME0flag_5ms=1;
@@ -43,11 +45,21 @@ void pit0_isr(void)                               //测速子程序
     TIME0flag_20ms=1;
     getSpeed();
     Motor_pid(speed_hope,leftMotorSpeed,rightMotorSpeed);
+    
+  }
+  if(count_pit0%59==0)
+  {
+    ultrasonic_deal();
+    
   }
   if(count_pit0%100==0)
   {
     TIME1flag_100ms=1;
     TIME1count+=1;
+    /*if(buzzer_Flag)
+    {
+      Buzzer=!Buzzer;
+    }*/
   }
   if(count_pit0==200)
     count_pit0=0;
@@ -55,11 +67,12 @@ void pit0_isr(void)                               //测速子程序
   {
     TIME1count=0;
     TIME1flag_1s=1; 
-    if(buzzer_Flag)
+    //警报
+    /*if(buzzer_Flag)
     {
       buzzer_Flag = 0;
       Buzzer=1;
-    }
+    }*/
     //else
       //Buzzer=0;
   }
@@ -80,15 +93,17 @@ void ultrasonic_isr(void)
 		}
 		else
 		{
-      //ultrasonic_struct newnode={0,0,0,0};
-			UltrasonicTime = (0xFFFFFFFF - PIT->CHANNEL[PIT1].CVAL)/50;//50M总线时钟，计算得到时间，单位是微秒
+			UltrasonicTime = (0xFFFFFFFF - PIT->CHANNEL[PIT1].CVAL)/100;//50M总线时钟，计算得到时间，单位是微秒//50
 			Distance = UltrasonicTime * 340/1000;//一秒钟的声音速度假设为340米，由于chaoshengboTime单位是微秒，/1000后得到单位是mm
 			PIT->CHANNEL[PIT1].TCTRL &= ~PIT_TCTRL_TEN_MASK;//停止定时器
 		}
 	}
+  if(!Distance)
+    Distance=3000;
 }
 void ultr_isr()
 {
+  //Buzzer=!Buzzer;
   PIT->CHANNEL[PIT2].TCTRL &= ~PIT_TCTRL_TEN_MASK;//停止定时器
-	PIT->CHANNEL[PIT2].LDVAL = 20;//32位定时器，装最大值即可
+  Trig=0;
 }

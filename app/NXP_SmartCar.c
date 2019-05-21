@@ -22,33 +22,52 @@ void main (void)
 {
   DisableInterrupts;
   init();
-  //LPLD_UART_PutChar(UART4, 0x30);
   EnableInterrupts;
   switch (dip)
   {
+    //空程序
     case 0:
       while(1)
       {
-        GUI_wrlval(0, 0,(int32)dip,4,0);
+        display(1);
       }
+    //图像输出
     case 1:
       while(1)
       {
         GUI_wrlval(0, 0,(int32)dip,4,0);
         if(image_getted)
         {
+          display(1);
           image_getted=0;  
           image_select((uint8 *)Image_Data, (uint8 *)Pix_Data);
           shanwai_send(1);
         } 
       }
+    //电磁输出
     case 2:
       while(1)
       { 
         GUI_wrlval(0, 0,(int32)dip,4,0);
+        Sample();
+        display(3);
+        //GUI_wrlval(0, 4,(int32)LPLD_ADC_Get(ADC1,AD14),4,0);//
+      }
+    //调舵机
+    case 3:
+      while(1)
+      { 
+        LPLD_FTM_PWM_ChangeDuty(FTM1, FTM_Ch1,1160);//
+      }
+    //调超声波
+    case 4:
+      while(1)
+      { 
+        display(4);
       }
     /*****************摄像头运行******************/
     case 16:
+      par(1);
       GUI_wrlval(0, 0,(int32)dip,4,0);
       while(1)
       {
@@ -56,19 +75,31 @@ void main (void)
         display(1);
         shanwai_wave();
       }
+    case 17:
+      par(1);
+      GUI_wrlval(0, 0,(int32)dip,4,0);
+      while(1)
+      {
+        GO1();
+        display(2);
+        shanwai_wave();
+      }
     /*********************************************/
     
     /******************电磁运行*******************/
     case 32:
+      par(2);
       GUI_wrlval(0, 0,(int32)dip,4,0);
       while(1)
       {
         GO2();
+        display(2);
       }
     /*********************************************/
     
     /******************摄像头和电磁运行*******************/
     case 64:
+      par(1);
       GUI_wrlval(0, 0,(int32)dip,4,0);
       while(1)
       {
@@ -86,6 +117,7 @@ void GO1()
     speedcontrol();
     Servo_PD(differ);
    }
+  
 }
 void GO2()
 {

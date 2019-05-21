@@ -28,9 +28,9 @@ int16 R_D_error=0;//本次偏差减上次偏差
 int16 R_Err_prelast=0;//e(k-2)
 int16 R_DD_error=0;//e(k)-2e(k-1)+e(k-2)
 
-float motor_Kp=0;
-float motor_Kd=0;
-float motor_Ki=0;
+float motor_Kp=36;
+float motor_Kd=1;
+float motor_Ki=5.5;
 int16 L_Adjust=0;//电机的转速
 int16 R_Adjust=0;//电机的转速
 
@@ -39,8 +39,8 @@ int16 R_Adjust=0;//电机的转速
 
 int16_t differ=0;//舵机打角
 /*舵机pd参数*/
-float servo_Kp=0;//舵机的p值
-float servo_Kd=0;//舵机的d值
+float servo_Kp=2;//舵机的p值
+float servo_Kd=6;//舵机的d值
 
 float Err_Curr_Servo=0;
 float Err_Last_Servo=0;
@@ -131,7 +131,7 @@ void speedcontrol()   //速度控制
 	{
     speed_hope = speed_low;
 	}
-  else
+  else if(g_lu_flag==7)
 	{
     speed_hope=speed_huan;
 	}
