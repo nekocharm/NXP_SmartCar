@@ -577,15 +577,15 @@ void Bu_Circle()   //环岛补线
   
   if(R_Huan_Entry_Flag)
   {
-    //buzzer_Flag=1;
+    buzzer_Flag=1;
     Buzzer=1;
     g_lu_flag=7;
   }
   
-  if(R_Huan_Flag&&R_Huan_Exit_Temp_Flag&&R_Huan_Time_Counter > 100) //进环岛后，时间超过50，且左边丢线，判为出环岛
+  if(R_Huan_Flag&&R_Huan_Exit_Temp_Flag&&R_Huan_Time_Counter > 160) //进环岛后，时间超过50，且左边丢线，判为出环岛
   {
     //buzzer_Flag=0;
-    Buzzer=0;//Buzzer
+    //Buzzer=0;//Buzzer
     R_Huan_Exit_Flag = 1;
     R_Huan_Time_Counter = 0;
   }
@@ -593,7 +593,7 @@ void Bu_Circle()   //环岛补线
   
   if(R_Huan_Exit_Flag && R_Huan_Time_Counter > 40)  //判断为出环岛后，时间超过20，环岛结束
   {
-
+    buzzer_Flag=0;
     R_Huan_Exit_Flag = 0;
     R_Huan_Flag = 0;
     R_Huan_Time_Counter = 0;
@@ -608,7 +608,7 @@ void Bu_Circle()   //环岛补线
   if(R_Huan_Entry_Flag)      //进环岛补线
   {
     for(i=ROW-1; i>0; i--)
-      le_left[i] = (uint8)((R_Huan_K_Entry*(59-i)/10)+50);   
+      le_left[i] = (uint8)((R_Huan_K_Entry*(59-i)/10));   
     for(i=ROW-1; i>0; i--)
     {
       if(le_left[i]>le_right[i])
@@ -961,7 +961,7 @@ void Bu_Curve()   //弯道补线
 		le_mid[i-1]=(le_left[i-1]+le_right[i-1])>>1;
 		if(le_left[i]>COLUMN-44&&le_left[i-1]>COLUMN-39)//当左边线或者右边线超过一定的值得时候就把他补线过去
 		{
-			zhongzhuanl=le_left[i-1];
+			zhongzhuanl=le_left[i-1];//
 			zhongzhuanr=COLUMN-2;
 			for(; i>0; i--)
 			{
@@ -974,7 +974,7 @@ void Bu_Curve()   //弯道补线
 		}
 		if(le_right[i]<45&&le_right[i-1]<40)
 		{
-			zhongzhuanr=le_right[i-1];
+			zhongzhuanr=le_right[i-1];//
 			zhongzhuanl=2;
 			for(; i>0; i--)
 			{
@@ -1063,6 +1063,13 @@ void Calculation_Differ() //计算打角differ
 			daolub=(uint16)((le_mid[daolu]+le_mid[daolu+2]+le_mid[daolu+1])/3);
 			//根据道路有效值中点与实际中点差值，算出舵机打角
 			differ=(int)(1*(zhongdian-daolub));
+      if(shangbian > daoluyuwanl)
+			{
+				if(differ>0)
+					differ=differ+3*(daolu-daoluyuwanl);  //改动   //
+				else
+					differ=differ-3*(daolu-daoluyuwanl);//沿直线把它归一化
+			}
 		}
 		if(le_mid[shangbian+4]>zhongdian&&le_mid[shangbian+5]>zhongdian)
 		{
@@ -1076,6 +1083,13 @@ void Calculation_Differ() //计算打角differ
 
 			daolub=(uint16)((le_mid[daolu]+le_mid[daolu+2]+le_mid[daolu+1])/3);
 			differ=(int)(1*(zhongdian-daolub));
+      if(shangbian > daoluyuwanr)
+			{
+				if(differ>0)
+					differ=differ+3*(daolu-daoluyuwanr);//3
+				else
+					differ=differ-3*(daolu-daoluyuwanr);//沿直线把它归一化
+			}
 		}
 	}
 
@@ -1091,7 +1105,7 @@ void Calculation_Differ() //计算打角differ
 		//根据道路有效点上下点的中线平均值与中点差值确定舵机打角
 		leijia=le_mid[daolu-2]+le_mid[daolu-1]+le_mid[daolu]+le_mid[daolu+1];
 		daolub=(uint16)(leijia/4);
-		differ=(zhongdian-daolub);
+		differ=(int)(zhongdian-daolub);
 	}
 	//判断障碍
 	if(g_lu_flag == 5 && !g_shi_flag)
