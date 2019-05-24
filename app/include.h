@@ -23,8 +23,8 @@ void GO3(void);
 
 /*舵机参数*/
 #define ServoMid 1075//1438
-#define ServoLeft 1160//最左pwm波值1546
-#define ServoRight 990//最右pwm波值1330
+#define ServoLeft 1170//最左pwm波值1546
+#define ServoRight 980//最右pwm波值1330
 extern int16_t differ;//舵机打角
 
 /*图像参数*/

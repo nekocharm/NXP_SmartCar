@@ -120,3 +120,5 @@ void Find_Mid();  //补完线重新计算中点
 void Calculation_Differ(); //计算打角differ
 void Calculation_Pd();//计算舵机Pd值
 void Bu_Circle();
+void Bar();//障碍
+void duanlu();//断路

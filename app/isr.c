@@ -56,10 +56,10 @@ void pit0_isr(void)                               //测速子程序
   {
     TIME1flag_100ms=1;
     TIME1count+=1;
-    if(buzzer_Flag)
+    /*if(buzzer_Flag)
       Buzzer=!Buzzer;
     else
-      Buzzer=0;
+      Buzzer=0;*/
   }
   if(count_pit0==200)
     count_pit0=0;

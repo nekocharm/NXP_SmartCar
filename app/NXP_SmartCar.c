@@ -51,13 +51,12 @@ void main (void)
         GUI_wrlval(0, 0,(int32)dip,4,0);
         Sample();
         display(3);
-        //GUI_wrlval(0, 4,(int32)LPLD_ADC_Get(ADC1,AD14),4,0);//
       }
     //调舵机
     case 3:
       while(1)
       { 
-        LPLD_FTM_PWM_ChangeDuty(FTM1, FTM_Ch1,1160);//
+        LPLD_FTM_PWM_ChangeDuty(FTM1, FTM_Ch1,1170);//
       }
     //调超声波
     case 4:
@@ -104,6 +103,7 @@ void main (void)
       while(1)
       {
         GO3();
+        GUI_wrlval(0, 4,(int32)g_lu_flag,4,0);
       }
     /*********************************************/
   }
@@ -130,9 +130,21 @@ void GO3()
 {
   if(image_getted)
   {
-    image_getted=0;  
-    image_deal();
-    speedcontrol();
-    Servo_PD(differ);
+    if(g_lu_flag==8)
+    {
+      image_getted=0;  
+      image_deal();
+      speedcontrol();
+      Sample();
+      magnet_deal();
+      Servo_PD(differ);
+    }
+    else
+    {
+      image_getted=0;  
+      image_deal();
+      speedcontrol();
+      Servo_PD(differ);
+    }
    }
 }

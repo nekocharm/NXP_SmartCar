@@ -16,9 +16,9 @@ uint16 CircularJudge[6]={0};
 
 void Inductance_Get(void)
 {
-  ADGet_Inductance[0][Isr_Count] = (uint16)(LPLD_ADC_Get(ADC0,AD14));//C0//左竖
-  ADGet_Inductance[1][Isr_Count] = (uint16)(LPLD_ADC_Get(ADC1,AD8));//B0//左斜  
-  ADGet_Inductance[2][Isr_Count] = (uint16)(LPLD_ADC_Get(ADC1,AD14));//B10//右竖   //  
+  ADGet_Inductance[0][Isr_Count] = (uint16)(LPLD_ADC_Get(ADC0,AD14));//C0//左斜
+  ADGet_Inductance[1][Isr_Count] = (uint16)(LPLD_ADC_Get(ADC1,AD8));//B0//右竖  
+  ADGet_Inductance[2][Isr_Count] = (uint16)(LPLD_ADC_Get(ADC1,AD14));//B10//左竖     
   ADGet_Inductance[3][Isr_Count] = (uint16)(LPLD_ADC_Get(ADC1,AD15));//B11//右斜  
   ADGet_Inductance[4][Isr_Count] = (uint16)(LPLD_ADC_Get(ADC1,AD17)); //A17//左横  
   ADGet_Inductance[5][Isr_Count] = (uint16)(LPLD_ADC_Get(ADC1,AD5));//E1//右横
@@ -49,12 +49,12 @@ void Sample(void)//化简
   Inductance[4]=(uint16)(Inductance[4]/5.0);
   Inductance[5]=(uint16)(Inductance[5]/5.0);
   
-  CircularJudge[0]= Inductance[0]/100;
+  /*CircularJudge[0]= Inductance[0]/100;
   CircularJudge[1]= Inductance[1]/100;
   CircularJudge[2]= Inductance[2]/100;
   CircularJudge[3]= Inductance[3]/100;
   CircularJudge[4]= Inductance[4]/100;
-  CircularJudge[5]= Inductance[5]/100;
+  CircularJudge[5]= Inductance[5]/100;*/
   
 }
 void magnet_deal()

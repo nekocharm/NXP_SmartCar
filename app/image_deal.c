@@ -102,6 +102,7 @@ uint8 g_lu_flag=10;
 //g_lu_flag=5 直道
 //g_lu_flag=6 障碍
 //g_lu_flag=7;环岛
+//g_lu_flag=8;断路
 uint8  wan_flag=0;//赛道限幅十使用
 uint8 g_shi_flag=0;//十字标志位;
 /********************************************/
@@ -153,6 +154,7 @@ uint8 barjia = 0;
 uint8 barjian = 0;
 float kpbar = 0;
 float kdbar = 0;
+uint8 bar_flag=0;
 /******************************************/
 
 
@@ -223,9 +225,11 @@ void image_deal()
 	Bu_Crossroad(); //十字补线
 	Bu_Curve() ;  //弯道补线
 	//Start_Flag();  //起跑检测
-	Find_Mid() ; //补完线重新计算中点
+	Find_Mid() ; //补完线重新计算中点 
 	Calculation_Differ() ;//计算打角differ
 	Calculation_Pd();//计算舵机Pd值;
+  //Bar();
+  //duanlu();
 }
 /*****************************************************/
 
@@ -244,6 +248,7 @@ void Bu_Clear_Flag()  //补线标志位清零
     Lost_Right[i]=0;   //右边界丢线
     Lost_Left[i]=0;    //左边界丢线
     Track_Width[i]=0;
+    bar_flag=0;
 	}
 }
 //寻找边线
@@ -577,23 +582,23 @@ void Bu_Circle()   //环岛补线
   
   if(R_Huan_Entry_Flag)
   {
-    buzzer_Flag=1;
+    //buzzer_Flag=1;
     Buzzer=1;
     g_lu_flag=7;
   }
   
-  if(R_Huan_Flag&&R_Huan_Exit_Temp_Flag&&R_Huan_Time_Counter > 160) //进环岛后，时间超过50，且左边丢线，判为出环岛
+  if(R_Huan_Flag&&R_Huan_Exit_Temp_Flag&&R_Huan_Time_Counter > 120) //进环岛后，时间超过50，且左边丢线，判为出环岛
   {
     //buzzer_Flag=0;
-    //Buzzer=0;//Buzzer
+    Buzzer=0;//Buzzer
     R_Huan_Exit_Flag = 1;
     R_Huan_Time_Counter = 0;
   }
  
   
-  if(R_Huan_Exit_Flag && R_Huan_Time_Counter > 40)  //判断为出环岛后，时间超过20，环岛结束
+  if(R_Huan_Exit_Flag && R_Huan_Time_Counter > 30)  //判断为出环岛后，时间超过20，环岛结束//40
   {
-    buzzer_Flag=0;
+    //buzzer_Flag=0;
     R_Huan_Exit_Flag = 0;
     R_Huan_Flag = 0;
     R_Huan_Time_Counter = 0;
@@ -620,7 +625,7 @@ void Bu_Circle()   //环岛补线
     for(i=ROW-1; i>0; i--)
     {
       //if(((le_right[i]+le_right[i])/2)<130)
-        le_right[i] = COLUMN-2;
+      le_right[i] = COLUMN-2;
       le_left[i]=COLUMN-20; 
     }
     
@@ -1274,4 +1279,34 @@ void Get(uint8 *bArray, uint8 iFilterLen)
 	mid_num=bTemp;
 	max_num=bArray[iFilterLen-1];
 	min_num=bArray[0];
+}
+
+void Bar()
+{
+  for(i=0;i<15&&Image_Data[i+2][le_mid[i+2]]&&Image_Data[i+4][le_mid[i+4]]&&Image_Data[i+6][le_mid[i+6]]
+      &&Image_Data[i+14][40]==Image_Data[i+14][120]&&Image_Data[i+14][100]==Image_Data[i+14][60]&&g_lu_flag==5;i++)
+    bar_flag=1;
+  if(bar_flag&&Distance<1000)
+  {
+    buzzer_Flag=1;
+    differ=30;
+    Servo_PD(differ);
+    Delay_Ms(400);
+    differ=0;
+    Servo_PD(differ);
+    Delay_Ms(400);
+    differ=-30;
+    Servo_PD(differ);
+    Delay_Ms(500);
+    differ=0;
+    Servo_PD(differ);
+    Delay_Ms(10);
+    buzzer_Flag=0;   
+  }
+}
+void duanlu()
+{
+  for(i=0;i<15&&Image_Data[i+2][le_mid[i+2]]&&Image_Data[i+4][le_mid[i+4]]&&Image_Data[i+6][le_mid[i+6]]
+      &&Image_Data[i+6][40]==Image_Data[i+6][120]&&Image_Data[i+6][100]==Image_Data[i+6][60]&&Distance>1000;i++)
+    g_lu_flag=8;
 }

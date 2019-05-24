@@ -131,12 +131,12 @@ void speedcontrol()   //速度控制
 	{
     speed_hope = speed_low;
 	}
-  else if(g_lu_flag==7)
+  /*else if(g_lu_flag==7)
 	{
     speed_hope=speed_huan;
-	}
-  /*if(R_Huan_Flag)
-    speed_hope = 150;*/
+	}*/
+  if(R_Huan_Flag)
+    speed_hope = speed_huan;
 }
 
 void Motor_pid(uint16 speedhope,uint16 L_speed_actual,uint16 R_speed_actual)   
