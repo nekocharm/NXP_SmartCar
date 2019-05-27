@@ -66,45 +66,22 @@ void getSpeed()
 		leftMotorSpeed = rightMotorSpeed;*/
 }
 
-/*void speedup() //加速UniformJia
+void speedup() //加速UniformJia
 {
-	LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch0, 0);
-	LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch1, 8000);   //3200
+	LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch0, 6000);
+	LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch1, 0);   //3200
 	LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch2, 0);
-	LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch3, 8000);  //左轮
+	LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch3, 6000);  //左轮
 }
 
 void speeddown()  //减速UniformJian
 {
-	LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch0, 9000);
-	LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch1, 0);
-	LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch2, 9000);
-	LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch3, 0);
-}
-
-void stopCar()    //停止电机运行
-{
 	LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch0, 0);
-	LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch1, 0);
-	LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch2, 0);
+	LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch1, 6000);
+	LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch2, 6000);
 	LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch3, 0);
 }
 
-void rightTriSpeed()
-{
-	LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch0, 8000);
-	LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch1, 0);
-	LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch2, 0);
-	LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch3, 8000);
-}
-
-void leftTriSpeed()
-{
-	LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch0, 0);
-	LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch1, 8000);
-	LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch2, 8000);    //左轮减速
-	LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch3, 0);
-}*/
 //期望速度选择
 void speedcontrol()   //速度控制
 {
@@ -205,48 +182,78 @@ void Motor_pid(uint16 speedhope,uint16 L_speed_actual,uint16 R_speed_actual)
   
 }
 
-/*void Motor_pid_Stop(uint16 speed_hope,uint16 L_speed_actual,uint16 R_speed_actual)
+void Motor_pid_Stop(uint16 L_speed_actual,uint16 R_speed_actual)
 {
-	R_Err_curr=speed_hope-R_speed_actual;
-	R_D_error=R_Err_curr-R_Err_last;
-	R_DD_error=R_Err_curr+R_Err_prelast-2*R_Err_last;
-  R_Adjust+=(int16)(motor_Kp*R_D_error+motor_Ki*R_Err_curr+motor_Kd*R_DD_error);
-  
-  L_Err_curr=speed_hope-L_speed_actual;
+  if(L_speed_actual>50&&R_speed_actual>50)
+    speeddown();
+  if(L_speed_actual<10||R_speed_actual<10)
+  {
+    LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch1, 0);
+		LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch0, 0);
+    LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch2, 0);
+    LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch3, 0);
+    while(1);
+  }
+	L_Err_curr=0-L_speed_actual;
 	L_D_error=L_Err_curr-L_Err_last;
 	L_DD_error=L_Err_curr+L_Err_prelast-2*L_Err_last;
   L_Adjust+=(int16)(motor_Kp*L_D_error+motor_Ki*L_Err_curr+motor_Kd*L_DD_error);
   
-	if(Adjust<=0)
-		Adjust=0;
-	else if(Adjust>=6000)
-		Adjust=6000;
-	Err_prelast=Err_last;
-	Err_last=Err_curr;
+  R_Err_curr=0-R_speed_actual;
+	R_D_error=R_Err_curr-R_Err_last;
+	R_DD_error=R_Err_curr+R_Err_prelast-2*R_Err_last;
+  R_Adjust+=(int16)(motor_Kp*R_D_error+motor_Ki*R_Err_curr+motor_Kd*R_DD_error);
+
   
-	if(speed_actual<80)
+	if(L_Adjust<=0)
 	{
-		LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch1, 0);
-		LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch3, 0);
-		LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch0, 0);
-		LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch2, 0);
+		if(L_Adjust <= -9000)
+			L_Adjust = -9000;
 	}
-	else if(Err_curr >= 120)
+	else if(L_Adjust>=6000)
+    L_Adjust=6000;
+  if(R_Adjust<=0)
 	{
-		Bangbang_Up();
+		if(R_Adjust <= -9000)
+			R_Adjust = -9000;
 	}
-	else if(Err_curr <= -120)
+	else if(R_Adjust>=6000)
+		R_Adjust=6000;
+  
+	L_Err_prelast=L_Err_last;
+	L_Err_last=L_Err_curr;
+  R_Err_prelast=R_Err_last;
+	R_Err_last=R_Err_curr;
+
+	if(L_Adjust > 0)
 	{
-		Bangbang_Down();
+    //LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch0, 0);
+		//LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch1, L_Adjust);
+    LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch2, 0);
+    LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch3, L_Adjust);
 	}
-	else
+  else
+  {
+   // LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch0, 9500);
+    //LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch1, 10000+L_Adjust);
+    LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch2, 9500);
+    LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch3, 10000+L_Adjust);
+  }
+  if(R_Adjust > 0)
 	{
-		LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch1, Adjust);
-		LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch3, Adjust);
-		LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch0, 0);
-		LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch2, 0);
+    LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch1, 0);
+		LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch0, R_Adjust);
+    //LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch2, 0);
+    //LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch3, R_Adjust);
 	}
-}*/
+  else
+  {
+    LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch1, 9500);
+    LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch0, 10000+R_Adjust);
+   // LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch2, 9500);
+    //LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch3, 10000+R_Adjust);
+  }
+}
 
 /*舵机控制*/
 

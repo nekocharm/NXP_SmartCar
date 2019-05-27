@@ -3,6 +3,8 @@ extern int32 Distance;
 extern uint8 buzzer_Flag;
 
 void pit0_isr(void);
-void ultrasonic_isr(void);
+void pta_isr(void);
 void ultr_isr(void);
+//void stop_isr();
+//void gpio_isr();
 //void image_select(uint8 *,uint8 *);

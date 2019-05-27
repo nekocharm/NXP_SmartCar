@@ -19,7 +19,8 @@ GPIO_InitTypeDef gpio_switch_struct;  //拨码开关
 NVIC_InitTypeDef nvic_struct;   //中断优先级设置初始化
 GPIO_InitTypeDef ultrasonic_init_struct;   //超声波传感器
 PIT_InitTypeDef pit0_init_struct;  //定时器
-GPIO_InitTypeDef buzzer_init_struct; //蜂鸣器
+GPIO_InitTypeDef buzzer_init_struct; //
+GPIO_InitTypeDef gpio_init_struct; //GPIO口初始化
 
 /*全局变量定义*/
 uint8 dip=0; //拨码开关模式
@@ -28,14 +29,16 @@ uint8 dip=0; //拨码开关模式
 /*总初始化*/
 void init()
 {
+  buzzer_init();
   switch_init();
+  gpio_init();
   camera_init();  
   Servo_init();
   ADC_init();
   Motor_init();
   Nvic_Init();
   OLED_Init();
-  buzzer_init();
+  
   lptmr_init();
   Encoder_init();
   uart_init();
@@ -94,8 +97,6 @@ void Servo_init()
   servo_init_struct.FTM_Ftmx = FTM1;
   servo_init_struct.FTM_Mode = FTM_MODE_PWM ;
   servo_init_struct.FTM_PwmFreq = 75 ;//100
-  //servo_init_struct.FTM_PwmDeadtimeCfg = DEADTIME_CH01; 
-  //servo_init_struct.FTM_PwmDeadtimeVal=10;
   LPLD_FTM_Init(servo_init_struct);
   
   LPLD_FTM_PWM_Enable( FTM1,FTM_Ch1,ServoMid, PTB1, ALIGN_LEFT );//ServoMid=1438
@@ -230,16 +231,23 @@ void switch_init()
 /*中断优先级设置初始化*/
 void Nvic_Init()
 {
-  nvic_struct.NVIC_IRQChannel=PIT0_IRQn; //定时器中断
+  nvic_struct.NVIC_IRQChannel=PORTA_IRQn; //外部中断
   nvic_struct.NVIC_IRQChannelGroupPriority=NVIC_PriorityGroup_3;
   nvic_struct.NVIC_IRQChannelPreemptionPriority=0;
   nvic_struct.NVIC_IRQChannelSubPriority=0;
   nvic_struct.NVIC_IRQChannelEnable=TRUE;
   LPLD_NVIC_Init(nvic_struct);
   
-  nvic_struct.NVIC_IRQChannel=PORTC_IRQn; //场中断
+  nvic_struct.NVIC_IRQChannel=PIT0_IRQn; //定时器中断
   nvic_struct.NVIC_IRQChannelGroupPriority=NVIC_PriorityGroup_3;
   nvic_struct.NVIC_IRQChannelPreemptionPriority=1;
+  nvic_struct.NVIC_IRQChannelSubPriority=0;
+  nvic_struct.NVIC_IRQChannelEnable=TRUE;
+  LPLD_NVIC_Init(nvic_struct);
+  
+  nvic_struct.NVIC_IRQChannel=PORTC_IRQn; //场中断
+  nvic_struct.NVIC_IRQChannelGroupPriority=NVIC_PriorityGroup_3;
+  nvic_struct.NVIC_IRQChannelPreemptionPriority=2;
   nvic_struct.NVIC_IRQChannelSubPriority=0;
   nvic_struct.NVIC_IRQChannelEnable=TRUE;
   LPLD_NVIC_Init(nvic_struct); 
@@ -257,7 +265,7 @@ void ultrasonic_init()
   ultrasonic_init_struct.GPIO_Pins = GPIO_Pin5;  //echo
   ultrasonic_init_struct.GPIO_Dir = DIR_INPUT;
   ultrasonic_init_struct.GPIO_PinControl = IRQC_ET | INPUT_PULL_DOWN; //边沿触发中断,INPUT_PULL_DOWN
-  ultrasonic_init_struct.GPIO_Isr = ultrasonic_isr;  
+  ultrasonic_init_struct.GPIO_Isr = pta_isr;  
   LPLD_GPIO_Init(ultrasonic_init_struct);  
   LPLD_GPIO_EnableIrq(ultrasonic_init_struct);
   
@@ -294,4 +302,30 @@ void buzzer_init(void)
   buzzer_init_struct.GPIO_Output = OUTPUT_L;
   buzzer_init_struct.GPIO_PinControl = IRQC_DIS;
   LPLD_GPIO_Init(buzzer_init_struct);
+}
+void gpio_init()
+{
+  /*gpio_init_struct.GPIO_PTx =PTA;     
+  gpio_init_struct.GPIO_Pins =GPIO_Pin15;
+  gpio_init_struct.GPIO_Dir = DIR_OUTPUT;  //输出
+  LPLD_GPIO_Init(gpio_init_struct);
+  LED=1;*/
+  /*gpio_init_struct.GPIO_PTx =PTA;     
+  gpio_init_struct.GPIO_Pins =GPIO_Pin12;
+  gpio_init_struct.GPIO_Dir = DIR_INPUT;  //输入
+  gpio_init_struct.GPIO_Output = OUTPUT_H;  
+  gpio_init_struct.GPIO_PinControl =INPUT_PULL_UP|IRQC_RI|INPUT_PF_EN ;//FA
+  gpio_init_struct.GPIO_Isr = stop_isr;  
+  LPLD_GPIO_Init(gpio_init_struct);
+  */
+  gpio_init_struct.GPIO_PTx = PTA;      //PORTB
+  gpio_init_struct.GPIO_Pins = GPIO_Pin12|GPIO_Pin12;     //引脚6、7
+  gpio_init_struct.GPIO_Dir = DIR_INPUT;        //输入
+  gpio_init_struct.GPIO_PinControl = INPUT_PULL_UP|IRQC_FA;     //内部上拉|上升沿中断
+  gpio_init_struct.GPIO_Isr = pta_isr;        //中断函数
+  LPLD_GPIO_Init(gpio_init_struct);
+  //使能中断
+  LPLD_GPIO_EnableIrq(gpio_init_struct);
+  //GUI_wrlval(60, 0,(int32)(LPLD_GPIO_EnableIrq(gpio_init_struct)),4,0);
+  //LPLD_GPIO_EnableIrq(gpio_init_struct);
 }

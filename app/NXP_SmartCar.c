@@ -22,6 +22,7 @@ void main (void)
 {
   DisableInterrupts;
   init();
+  //Delay_Ms(2000);
   EnableInterrupts;
   switch (dip)
   {
@@ -64,15 +65,19 @@ void main (void)
       { 
         display(4);
       }
+    case 5:
+      while(1)
+      { 
+        display(1);
+      }
     /*****************摄像头运行******************/
     case 16:
       par(1);
-      GUI_wrlval(0, 0,(int32)dip,4,0);
+      Delay_Ms(2000);
+      //GUI_wrlval(0, 0,(int32)dip,4,0);
       while(1)
       {
         GO1();
-        display(1);
-        shanwai_wave();
       }
     case 17:
       par(1);
@@ -87,12 +92,23 @@ void main (void)
     
     /******************电磁运行*******************/
     case 32:
-      par(2);
+      par(1);
+      
       GUI_wrlval(0, 0,(int32)dip,4,0);
       while(1)
       {
         GO2();
-        display(2);
+      }
+    case 33:
+      par(1);
+      
+      GUI_wrlval(0, 0,(int32)dip,4,0);
+      while(1)
+      {
+        Sample();
+        magnet_deal();
+        speedcontrol();
+        display(1);
       }
     /*********************************************/
     
@@ -114,9 +130,17 @@ void GO1()
   {
     image_getted=0;  
     image_deal();
-    speedcontrol();
-    Servo_PD(differ);
-   }
+    speedcontrol();    
+  }
+  Servo_PD(differ);
+  if(qipao_flag==1)
+  {
+    speed_hope=0;
+		while(1)
+    {
+      Motor_pid_Stop(leftMotorSpeed,rightMotorSpeed);
+    }
+  }
   
 }
 void GO2()

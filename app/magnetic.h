@@ -8,6 +8,8 @@ extern float DirectionErr[2];	//方向偏差（g_fDirectionError[0]为一对水�
 extern float DirectionErr_dot[2];//方向偏差微分（g_fDirectionError_dot[0]为一对水平电感的差比和偏差微分）
 extern float DirectionOut;	//方向控制输出
 extern float DirectionErrTemp[2][5];
+extern float kpyu;
+extern float kdyu;
 
 extern uint8 Flag_Round;
 

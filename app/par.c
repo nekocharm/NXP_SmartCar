@@ -8,8 +8,8 @@ void par(uint8 aa)
 	{ 
     case 1:
       //电磁pd
-      Direction_P=2000;//600
-      Direction_D=2000;
+      Direction_P=900;//600
+      Direction_D=1900;
       //电机pid
       motor_Kp=36;//20//25
       motor_Ki=1;//1
@@ -24,6 +24,8 @@ void par(uint8 aa)
       kpzhi=2.7;  //2.5
       kdzhi=20;   //6
       //弯道pd
+      kpyu=6;
+      kdyu=38;
       kpyul=6.8;//3.8/4.5/4.8/6.4
       kpyur=6.83;//3.8/6.7
       kdyul=38;//10/17/8

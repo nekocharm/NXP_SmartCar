@@ -5,6 +5,8 @@
 
 #define  Buzzer  PTC17_O
 #define  Trig    PTA4_O
+#define  LED     PTA15_O
+#define  K     PTA12_I
 
 void init();
 void camera_init();
@@ -19,5 +21,6 @@ void Nvic_Init();
 void buzzer_init(void);
 void ultrasonic_init();
 void pit0_init();
+void gpio_init();
 
 #endif

@@ -78,11 +78,11 @@ void pit0_isr(void)                               //测速子程序
   }
   LPLD_PIT_EnableIrq(pit0_init_struct);                           //开pit0中断
 }
-void ultrasonic_isr(void)
+void pta_isr(void)
 {
-	int32 UltrasonicTime=0;
 	if(LPLD_GPIO_IsPinxExt(PORTA, GPIO_Pin5))
 	{
+    int32 UltrasonicTime=0;
 		LPLD_GPIO_ClearIntFlag(PORTA);
 		if(PTA5_I==1)//检测到IO口是高电平，那么就是上升沿
 		{
@@ -97,9 +97,23 @@ void ultrasonic_isr(void)
 			Distance = UltrasonicTime * 340/1000;//一秒钟的声音速度假设为340米，由于chaoshengboTime单位是微秒，/1000后得到单位是mm
 			PIT->CHANNEL[PIT1].TCTRL &= ~PIT_TCTRL_TEN_MASK;//停止定时器
 		}
+    if(!Distance)
+      Distance=3000;
 	}
-  if(!Distance)
-    Distance=3000;
+  if(LPLD_GPIO_IsPinxExt(PORTA, GPIO_Pin12))
+	{
+		LPLD_GPIO_ClearIntFlag(PORTA);
+    Delay_Ms(5);
+    if(PTA12_I==0)
+    { 
+      speed_hope=0;
+      while(1)
+      {
+        getSpeed();
+        Motor_pid_Stop(leftMotorSpeed,rightMotorSpeed);
+      }
+    } 
+	}
 }
 void ultr_isr()
 {
@@ -107,3 +121,6 @@ void ultr_isr()
   PIT->CHANNEL[PIT2].TCTRL &= ~PIT_TCTRL_TEN_MASK;//停止定时器
   Trig=0;
 }
+
+  
+ 
