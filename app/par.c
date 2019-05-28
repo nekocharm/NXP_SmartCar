@@ -26,10 +26,10 @@ void par(uint8 aa)
       //弯道pd
       kpyu=6;
       kdyu=38;
-      kpyul=6.8;//3.8/4.5/4.8/6.4
-      kpyur=6.83;//3.8/6.7
-      kdyul=38;//10/17/8
-      kdyur=38;//10/17/8
+      kpyul=4.3;//3.8/4.5/4.8/6.4
+      kpyur=4.3;//3.8/6.7
+      kdyul=45;//10/17/8
+      kdyur=45;//10/17/8
       //圆环pd值
       kpyuhuan=5;
       kdyuhuan=5;
@@ -40,19 +40,19 @@ void par(uint8 aa)
       kdweitiao = 6.5;
       //判断大弯小弯赋予不同的pd值
       qufenl_1 = 10;//35
-      qufenl_2 = 30;                    //50
-      qufenl_3 = 40;
+      qufenl_2 = 25;                    //50
+      qufenl_3 = 30;
       qufenr_1 = 10;
       qufenr_2 = 25;
-      qufenr_3 = 38;
+      qufenr_3 = 30;
 
       //用于弯道时舵机p值调整
       weitiaol_1 = 0.01;//0.00905  0.007/*0.02/0.01
-      weitiaol_2 = 0.025;//0.00905//0.0019
-      weitiaol_3=0.03;//0.05 88   0.02
+      weitiaol_2 = 0.03;//0.00905//0.0019
+      weitiaol_3=0.032;//0.05 88   0.02
       weitiaor_1 = 0.01;//0.
-      weitiaor_2 = 0.026;//0.00905//0.0019
-      weitiaor_3=0.03;//0.0588   0.02
+      weitiaor_2 = 0.03;//0.00905//0.0019
+      weitiaor_3=0.032;//0.0588   0.02
       //弯道pd
       kdyul_1 = kdyul;//20
       kdyul_2 = kdyul;//23//15
@@ -63,8 +63,8 @@ void par(uint8 aa)
       
       //前瞻数值
       daoluyuzhi_temp=42;//37
-      daoluyuwanl_temp=32;//37
-      daoluyuwanr_temp=32;//37
+      daoluyuwanl_temp=37;//37
+      daoluyuwanr_temp=37;//37
       yuhuanyuzhi=44;//圆环前瞻
       yuhuanwanl=44;
       yuhuanwanr=44;
@@ -74,10 +74,10 @@ void par(uint8 aa)
       speed_mid =205;//
       speed_low = 200;//
       speed_huan=190;//*/
-      speed_fast = 215;//190
-      speed_mid =190;//
-      speed_low = 200;//160
-      speed_huan=175;//*/
+      speed_fast = 260;//190
+      speed_mid =200;//
+      speed_low = 220;//160
+      speed_huan=200;//*/
 
       
       //障碍

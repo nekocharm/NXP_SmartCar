@@ -184,14 +184,19 @@ void Motor_pid(uint16 speedhope,uint16 L_speed_actual,uint16 R_speed_actual)
 
 void Motor_pid_Stop(uint16 L_speed_actual,uint16 R_speed_actual)
 {
-  if(L_speed_actual>50&&R_speed_actual>50)
+  if(L_speed_actual>100&&R_speed_actual>100)
     speeddown();
-  if(L_speed_actual<10||R_speed_actual<10)
+  if(L_speed_actual<10&&R_speed_actual<10)
   {
-    LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch1, 0);
-		LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch0, 0);
+    LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch0, 0);
+		LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch1, 0);
     LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch2, 0);
     LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch3, 0);
+    LPLD_FTM_DisableChn(FTM0,FTM_Ch0);
+    LPLD_FTM_DisableChn(FTM0,FTM_Ch1);
+    LPLD_FTM_DisableChn(FTM0,FTM_Ch2);
+    LPLD_FTM_DisableChn(FTM0,FTM_Ch3);
+    //Buzzer=1;
     while(1);
   }
 	L_Err_curr=0-L_speed_actual;

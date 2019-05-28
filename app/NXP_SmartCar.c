@@ -135,9 +135,9 @@ void GO1()
   Servo_PD(differ);
   if(qipao_flag==1)
   {
-    speed_hope=0;
 		while(1)
     {
+      getSpeed();
       Motor_pid_Stop(leftMotorSpeed,rightMotorSpeed);
     }
   }

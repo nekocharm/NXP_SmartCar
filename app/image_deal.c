@@ -160,7 +160,7 @@ uint8 bar_flag=0;
 
 /***************起跑线检测*****************/
 void Start_Flag();   //起跑线检测
-uint8 jiance_qi=0;//检测起跑线标志，如果有圆环之后，开始检测起跑线
+uint8 jiance_qi=1;//检测起跑线标志，如果有圆环之后，开始检测起跑线
 uint8 qipao_flag=0;//起跑线标志
 uint8 qi_temp=0;
 uint8 qi_temp2=0;
@@ -192,7 +192,18 @@ uint8 R_Huan_Exit_Temp_Y = 0;  //右环岛出口拐点坐标
 uint8 R_Huan_Predict1_Flag = 0;     //右环岛预判第一阶段标志位
 uint8 R_Huan_Predict2_Flag = 0;     //右环岛预判第二阶段标志位
 uint8 R_Huan_Cliff_Flag = 0;       //右环岛拐点
-float R_Huan_K_Entry = 0;   //右环岛补线斜率
+float R_Huan_K_Entry = 0;   //左环岛补线斜率
+int L_Huan_Time_Counter = 0;    //左环岛辅助计时器
+uint8 L_Huan_Flag = 0;        //左环岛标志位
+uint8 L_Huan_Entry_Flag = 0;  //左环岛入口标志位
+uint8 L_Huan_In_Flag = 0;     //左环岛进入内部标志位
+uint8 L_Huan_Exit_Flag = 0;   //左环岛出口标志位
+uint8 L_Huan_Exit_Temp_Flag = 0;   //左环岛出口标志位
+uint8 L_Huan_Exit_Temp_Y = 0;  //左环岛出口拐点坐标
+uint8 L_Huan_Predict1_Flag = 0;     //左环岛预判第一阶段标志位
+uint8 L_Huan_Predict2_Flag = 0;     //左环岛预判第二阶段标志位
+uint8 L_Huan_Cliff_Flag = 0;       //左环岛拐点
+float L_Huan_K_Entry = 0;   //左环岛补线斜率
 /******************************************/
 
 uint8 zhongzhuanl=0,zhongzhuanr=0;//临时变量
@@ -223,7 +234,7 @@ void image_deal()
   Bu_Circle() ;//环岛  
 	Bu_Crossroad(); //十字补线
 	Bu_Curve() ;  //弯道补线
-	//Start_Flag();  //起跑检测
+	Start_Flag();  //起跑检测
 	Find_Mid() ; //补完线重新计算中点 
 	Calculation_Differ() ;//计算打角differ
 	Calculation_Pd();//计算舵机Pd值;
@@ -482,13 +493,23 @@ void Bu_Circle()   //环岛补线
 {
   Straight_Length = 0 ;
   int i;
-  int temp;
+  int temp1,temp2;
+  
   R_Huan_Exit_Temp_Y = 0;
+  L_Huan_Exit_Temp_Y  = 0;
   R_Huan_Time_Counter ++;
+  L_Huan_Time_Counter ++;
   R_Huan_Exit_Temp_Flag = 0;
+  L_Huan_Exit_Temp_Flag = 0;
+  
   if(R_Huan_Time_Counter > 2000)
     R_Huan_Time_Counter = 1999;
-  R_Huan_Cliff_Flag = 0;//
+  R_Huan_Cliff_Flag = 0;
+    
+  if(L_Huan_Time_Counter > 2000)
+    L_Huan_Time_Counter = 1999;
+  L_Huan_Cliff_Flag = 0;
+  
   for(i=15; i<ROW-5; i++)       //找到右边从没有线到出现线的位置
 	{
     if((fa_right[i-2]-fa_right[i])>20&&
@@ -525,13 +546,13 @@ void Bu_Circle()   //环岛补线
 	}
   Straight_Length = 59 - i;//直道长度
   
-  temp = fa_right[ROW-3]-3;
+  temp1 = fa_right[ROW-3]-3;
   for(i=55;i>0;i--)
   {
-    if(!Image_Data[i][temp])
+    if(!Image_Data[i][temp1])
       break;
   }
-  R_Huan_K_Entry=10*(fa_right[ROW-3]-35)/(59-i);//右环岛补线斜率
+  R_Huan_K_Entry=10*(fa_right[ROW-3]-30)/(59-i);//右环岛补线斜率/35
   
   /******************右环岛识别***********/
   if(R_Huan_Cliff_Flag&&!R_Huan_Flag&&Lost_Right[30]&&Lost_Right[32]&&!Lost_Left[30]&&!Lost_Left[32])  //第一阶段:右丢线，左不丢线,直道长度大于57，赛道宽度大于110小于150
@@ -626,6 +647,167 @@ void Bu_Circle()   //环岛补线
       //if(((le_right[i]+le_right[i])/2)<130)
       le_right[i] = COLUMN-2;
       le_left[i]=COLUMN-20; 
+    }
+    
+  } 
+  
+  
+  /****************************************/
+  /*             左环岛识别               */
+  /****************************************/
+  
+  for(i=15; i<ROW-5; i++)       //找到左边从没有线到出现线的位置
+	{
+    if((fa_left[i]-fa_left[i-2])>20&&
+      ((fa_left[i]-fa_left[i+1])>=0)&&((fa_left[i]-fa_left[i+1])<4)&&
+      ((fa_left[i+1]-fa_left[i+2])>=0)&&((fa_left[i+1]-fa_left[i+2])<4)&&
+      ((fa_left[i+2]-fa_left[i+3])>=0)&&((fa_left[i+2]-fa_left[i+3])<4)&&
+      (fa_left[i-2]<5)&&(fa_left[i-3]<5)&&
+      (fa_left[i-4]<5)&&(fa_left[i-5]<5))
+    {
+      L_Huan_Cliff_Flag = 1;//左边拐点标志位
+      //Buzzer=1;
+    }
+	}
+  //
+  for(i=5; i<ROW-5; i++)    //出环岛标志右边出现边线   
+	{
+    if((fa_right[i]-fa_right[i-2])>0&&(fa_right[i-1]-fa_right[i-3])>0&&(fa_right[i-2]-fa_right[i-4])>0&&
+      (fa_right[i]-fa_right[i+2])>0&&(fa_right[i+1]-fa_right[i+3])>0&&(fa_right[i+2]-fa_right[i+4])>0)
+    {
+      L_Huan_Exit_Temp_Y  = i;
+      break;
+    }
+	}
+  //
+  if(L_Huan_Exit_Temp_Y >30)
+    L_Huan_Exit_Temp_Flag = 1;
+  
+  for(i=0; i<ROW; i++)       //丢线判断
+	{
+    if(fa_right[i]>COLUMN-5)
+      Lost_Right[i]=1;
+    if(fa_left[i]<5)
+      Lost_Left[i]=1;
+    Track_Width[i] = fa_right[i] - fa_left[i]; 
+	}
+  //
+  for(i=ROW-1; i>0; i--)       //直道长度计算
+	{
+    if(!Image_Data[i][80])//弯道跳出循环
+      break;
+	}
+  Straight_Length = 59 - i;//直道长度
+  //
+  
+  temp2 = fa_left[ROW-3]+3;
+  
+  
+  
+  for(i=55;i>0;i--)
+  {
+    if(!Image_Data[i][temp2])
+      break;
+  }
+  
+  L_Huan_K_Entry=10*(fa_left[ROW-3]+35)/(59-i);//左环岛补线斜率
+  
+  /******************左环岛识别***********/
+  if(L_Huan_Cliff_Flag&&!L_Huan_Flag&&!Lost_Right[30]&&!Lost_Right[32]&&Lost_Left[30]&&Lost_Left[32])  //第一阶段:右丢线，左不丢线,直道长度大于57，赛道宽度大于110小于150
+  {
+    //Buzzer=1;
+    L_Huan_Predict1_Flag = 1;       //右环岛第一阶段预判
+    L_Huan_Time_Counter = 0;
+  }
+
+   
+  if(L_Huan_Predict1_Flag)
+  {
+    if(L_Huan_Time_Counter>30||Lost_Right[30]||Lost_Right[32])       //左边线丢失，或时间过长//拐弯
+    {
+      L_Huan_Time_Counter = 0;
+      L_Huan_Predict1_Flag = 0;
+    }
+    if(!Lost_Right[30]&&!Lost_Right[32]&&!Lost_Left[30]&&!Lost_Left[32]&&L_Huan_Time_Counter>3)  //第二阶段:左右均不丢线，直道长度大于50，时间超过3
+    {
+      //Buzzer=1;
+      L_Huan_Predict2_Flag = 1;
+      L_Huan_Predict1_Flag = 0;
+      L_Huan_Time_Counter = 0;
+    }
+  }
+  if(L_Huan_Predict2_Flag&&!Lost_Right[30]&&!Lost_Right[32]&&Lost_Left[30]&&Lost_Left[32])//环岛入口（第三阶段）：右丢线，左不丢线
+    {
+      L_Huan_Flag = 1;
+      L_Huan_Entry_Flag = 0;
+      L_Huan_In_Flag = 0;     
+      L_Huan_Exit_Flag = 0;  
+      L_Huan_Predict1_Flag = 0;
+      L_Huan_Predict2_Flag = 0;
+      L_Huan_Time_Counter = 0;
+    }
+  if(L_Huan_Predict2_Flag&&L_Huan_Time_Counter>50)       //左边线丢失，或时间过长
+    {
+      L_Huan_Time_Counter = 0;
+      L_Huan_Predict2_Flag = 0;
+    }
+  if(!L_Huan_Exit_Flag&&L_Huan_Flag&&L_Huan_Time_Counter<40)//40  //判断为环岛，且时间小于20，为环岛入口 
+  {
+    L_Huan_Entry_Flag = 1; 
+  }
+  else
+  {
+    L_Huan_Entry_Flag = 0; 
+  }
+  
+  if(L_Huan_Entry_Flag)
+  {
+    //buzzer_Flag=1;
+    Buzzer=1;
+    g_lu_flag=7;
+  }
+  
+  if(L_Huan_Flag&&L_Huan_Exit_Temp_Flag&&L_Huan_Time_Counter > 120) //进环岛后，时间超过50，且左边丢线，判为出环岛
+  {
+    //buzzer_Flag=0;
+    //Buzzer=0;//Buzzer
+    L_Huan_Exit_Flag = 1;
+    L_Huan_Time_Counter = 0;
+  }
+ 
+  
+  if(L_Huan_Exit_Flag && L_Huan_Time_Counter > 40)  //判断为出环岛后，时间超过20，环岛结束//40
+  {
+    Buzzer=0;
+    L_Huan_Exit_Flag = 0;
+    L_Huan_Flag = 0;
+    L_Huan_Time_Counter = 0;
+  }
+   
+  if(L_Huan_Flag&&!L_Huan_Entry_Flag&&!L_Huan_Exit_Flag) //判断为环岛，既不是入口，也不是出口，为环岛内
+    L_Huan_In_Flag = 1;
+  else
+    L_Huan_In_Flag = 0;
+  /***********************************************/
+  /*******************左环岛补线******************/
+  if(L_Huan_Entry_Flag)      //进环岛补线
+  {
+    //Buzzer=1;
+    for(i=ROW-1; i>0; i--)
+      le_right[i] = (uint8)((L_Huan_K_Entry*(59-i)/10));   
+    for(i=ROW-1; i>0; i--)
+    {
+      if(le_left[i]<le_right[i])
+        le_left[i] = 1;
+    }
+  }
+  if(L_Huan_Exit_Flag)      //出环岛顺着左边跑
+  {
+    for(i=ROW-1; i>0; i--)
+    {
+      //if(((le_right[i]+le_right[i])/2)<130)
+      le_right[i] = 20;
+      le_left[i]=1; 
     }
     
   }
@@ -1016,6 +1198,7 @@ void Start_Flag()  //起跑检测
 						{
 							qi_temp2=0;
 							qipao_flag=1;
+              //Buzzer=1;
 						}
 						break;
 					}
