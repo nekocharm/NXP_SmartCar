@@ -96,6 +96,23 @@ extern int16 Servo_Control;
 //int16 Servo_Control_last = 0;
 extern int16 duty;
 
+extern uint8 Duan_flag;
+
+extern int L_Huan_Time_Counter;   
+extern uint8 L_Huan_Flag;        
+extern uint8 L_Huan_Entry_Flag ; 
+extern uint8 L_Huan_In_Flag ;    
+extern uint8 L_Huan_Exit_Flag ;   
+extern uint8 L_Huan_Exit_Temp_Flag ;   
+extern uint8 L_Huan_Predict1_Flag ;     
+extern uint8 L_Huan_Predict2_Flag ;     
+extern uint8 L_Huan_Cliff_Flag ;      
+extern float L_Huan_K_Entry;   
+
+
+extern uint8 magnet_flag;
+extern uint8 jiance_qi;
+
 
 
 
@@ -121,4 +138,4 @@ void Calculation_Differ(); //计算打角differ
 void Calculation_Pd();//计算舵机Pd值
 void Bu_Circle();
 void Bar();//障碍
-void duanlu();//断路
+void Duanlu();//断路

@@ -33,5 +33,16 @@ void display(uint8 xx)
   case 4:  //超声波
     GUI_wrlval(0, 2,(int32)Distance,4,1);
     break;
+  case 5:  //时间
+    GUI_wrlval(0, 4,(int32)second-2,4,0);
+    GUI_wrlval(60, 4,(int32)TIME1count,4,0);
+  case 6:  //断路
+    GUI_wrlval(0, 4,(int32)shangyan,4,0);
+    GUI_wrlval(60, 4,(int32)shangbian,4,0);
+  case 7:  //断路
+    GUI_wrlval(0, 4,(int32)DirectionOut,4,0);
+    GUI_wrlval(60, 4,(int32)differ,4,0);
+    GUI_wrlval(0, 6,(int32)DirectionErr[0]*100,4,2);
+    GUI_wrlval(60, 6,(int32)DirectionErr[2]*100,4,2);
   }
 }

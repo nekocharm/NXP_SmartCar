@@ -21,7 +21,7 @@ extern uint8 image_getted=0;  //采集完成标志
 void img_extract(uint8 *dst,uint8 *src,uint32 srclen)
 {
 	uint8 colour[2]= {1,0};	//0 和 1 分别对应的颜色
-	//注：野火的摄像头 0 表示 白色，1表示 黑色
+	//注：野火的摄像头 0 表示 黑色，1表示 白色
 	uint8 tmpsrc;
 	while(srclen --)
 	{

@@ -108,12 +108,11 @@ void speedcontrol()   //速度控制
 	{
     speed_hope = speed_low;
 	}
-  /*else if(g_lu_flag==7)
-	{
-    speed_hope=speed_huan;
-	}*/
-  if(R_Huan_Flag)
-    speed_hope = speed_huan;
+
+  //if(R_Huan_Flag||L_Huan_Flag)
+    //speed_hope = speed_huan;
+  if(Duan_flag)
+    speed_hope = 160;
 }
 
 void Motor_pid(uint16 speedhope,uint16 L_speed_actual,uint16 R_speed_actual)   
@@ -184,9 +183,9 @@ void Motor_pid(uint16 speedhope,uint16 L_speed_actual,uint16 R_speed_actual)
 
 void Motor_pid_Stop(uint16 L_speed_actual,uint16 R_speed_actual)
 {
-  if(L_speed_actual>100&&R_speed_actual>100)
+  if(L_speed_actual>20||R_speed_actual>20)
     speeddown();
-  if(L_speed_actual<10&&R_speed_actual<10)
+  if(L_speed_actual<15&&R_speed_actual<15)
   {
     LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch0, 0);
 		LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch1, 0);

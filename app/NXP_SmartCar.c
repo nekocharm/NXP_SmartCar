@@ -36,10 +36,10 @@ void main (void)
     case 1:
       while(1)
       {
-        GUI_wrlval(0, 0,(int32)dip,4,0);
+        //GUI_wrlval(0, 0,(int32)dip,4,0);
         if(image_getted)
         {
-          display(1);
+          //display(1);
           image_getted=0;  
           image_select((uint8 *)Image_Data, (uint8 *)Pix_Data);
           shanwai_send(1);
@@ -50,7 +50,7 @@ void main (void)
       while(1)
       { 
         GUI_wrlval(0, 0,(int32)dip,4,0);
-        Sample();
+        //Sample();
         display(3);
       }
     //调舵机
@@ -68,7 +68,7 @@ void main (void)
     case 5:
       while(1)
       { 
-        display(1);
+        display(5);
       }
     /*****************摄像头运行******************/
     case 16:
@@ -81,19 +81,20 @@ void main (void)
       }
     case 17:
       par(1);
-      GUI_wrlval(0, 0,(int32)dip,4,0);
+      Delay_Ms(2000);
+      //GUI_wrlval(0, 0,(int32)dip,4,0);
       while(1)
       {
         GO1();
-        display(2);
-        shanwai_wave();
+        display(6);
+        //shanwai_wave();
       }
     /*********************************************/
     
     /******************电磁运行*******************/
     case 32:
       par(1);
-      
+      Delay_Ms(2000);
       GUI_wrlval(0, 0,(int32)dip,4,0);
       while(1)
       {
@@ -101,25 +102,31 @@ void main (void)
       }
     case 33:
       par(1);
-      
+      Delay_Ms(2000);
       GUI_wrlval(0, 0,(int32)dip,4,0);
       while(1)
       {
-        Sample();
-        magnet_deal();
-        speedcontrol();
-        display(1);
+        GO2();
+        display(7);
       }
     /*********************************************/
     
     /******************摄像头和电磁运行*******************/
     case 64:
       par(1);
-      GUI_wrlval(0, 0,(int32)dip,4,0);
+      Delay_Ms(2000);
+      //GUI_wrlval(0, 0,(int32)dip,4,0);
       while(1)
       {
         GO3();
-        GUI_wrlval(0, 4,(int32)g_lu_flag,4,0);
+      }
+    case 65:
+      par(1);
+      Delay_Ms(2000);
+      while(1)
+      {
+        GO3();
+        display(6);
       }
     /*********************************************/
   }
@@ -135,8 +142,16 @@ void GO1()
   Servo_PD(differ);
   if(qipao_flag==1)
   {
+    LPLD_PIT_DisableIrq(pit0_init_struct);
+    display(5);
 		while(1)
     {
+      if(image_getted)
+      {
+        image_getted=0;  
+        image_deal();
+      }
+      Servo_PD(differ);
       getSpeed();
       Motor_pid_Stop(leftMotorSpeed,rightMotorSpeed);
     }
@@ -145,30 +160,59 @@ void GO1()
 }
 void GO2()
 {
-  Sample();
+  Duan_flag=1;
+  //Sample();
   magnet_deal();
   speedcontrol();
   Servo_PD(differ);
 }
 void GO3()
 {
-  if(image_getted)
+  if(Duan_flag&&!R_Huan_Flag&&!L_Huan_Flag&&!magnet_flag)
   {
-    if(g_lu_flag==8)
+    if(image_getted)
+    {
+      image_getted=0;  
+      image_select((uint8 *)Image_Data, (uint8 *)Pix_Data);
+      Bu_Clear_Flag();  
+      Find_Bound();  
+      Save_Bound();   
+      Filters() ;
+      Bu(); 
+      Duanlu();
+      Start_Flag();  
+      Find_Mid() ; 
+    }
+    //Sample();
+    magnet_deal();
+    speedcontrol();  
+    Servo_PD(differ);      
+  }
+  else
+  {
+    if(image_getted)
     {
       image_getted=0;  
       image_deal();
-      speedcontrol();
-      Sample();
-      magnet_deal();
-      Servo_PD(differ);
+      speedcontrol();  
     }
-    else
+    Servo_PD(differ);
+  }
+  
+  if(qipao_flag)
+  {
+    LPLD_PIT_DisableIrq(pit0_init_struct);
+    display(5);
+		while(1)
     {
-      image_getted=0;  
-      image_deal();
-      speedcontrol();
+      if(image_getted)
+      {
+        image_getted=0;  
+        image_deal();
+      }
       Servo_PD(differ);
+      getSpeed();
+      Motor_pid_Stop(leftMotorSpeed,rightMotorSpeed);
     }
-   }
+  }
 }

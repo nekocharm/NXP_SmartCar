@@ -1,6 +1,6 @@
 #include "include.h"
 
-extern PIT_InitTypeDef pit0_init_struct;
+
 
 extern int32 Distance=3000;
 
@@ -12,12 +12,14 @@ uint8 TIME0flag_20ms=0;//定时模块布尔数
 uint8 TIME1flag_100ms=0;
 uint8 TIME1flag_1s=0;
 uint8 TIME1count=0;
-uint8 count_pit0 = 0;
+uint16 count_pit0 = 0;
 uint8 jishi=0;
 uint8 dingshijishi=0;
 uint8 buzzer_Flag= 0;
 uint8 Isr_Count=0;
-
+int16 microsecond=0;
+int8 second=0;
+uint16 magnet_count=0;
 
 void pit0_isr(void)                               //测速子程序
 {
@@ -25,18 +27,34 @@ void pit0_isr(void)                               //测速子程序
   LPLD_PIT_DisableIrq(pit0_init_struct);                         //关pit0中断
   TIME0flag_1ms=1;
   count_pit0++;
-  Uart_Ms_Counter++;
+  /*Uart_Ms_Counter++;
   if(Uart_Ms_Counter > 1000)
-    Uart_Ms_Counter = 999;
+    Uart_Ms_Counter = 999;*/
   if(count_pit0%2==0)
-    TIME0flag_2ms=1; 
-  
-    
+    TIME0flag_2ms=1;
+  /*microsecond++;
+  if(!(microsecond%1000))
+  {
+     microsecond=0;
+     second++;
+  }
+  if(count_pit0%1000)
+  {
+    second++;
+  }*/
+  if(magnet_flag)
+  {
+    magnet_count++;
+    if(magnet_count>999)
+      magnet_flag=0;  
+  }
+  if(second>9)
+    jiance_qi=1;
+   
   if(count_pit0%5==0)
   {
     TIME0flag_5ms=1;
     Inductance_Get();
-    Isr_Count=(Isr_Count+1)%5;
   }
   if(count_pit0%10==0)
     TIME0flag_10ms=1; 
@@ -66,15 +84,8 @@ void pit0_isr(void)                               //测速子程序
   if(TIME1count==10)
   {
     TIME1count=0;
-    TIME1flag_1s=1; 
-    //警报
-    /*if(buzzer_Flag)
-    {
-      buzzer_Flag = 0;
-      Buzzer=1;
-    }*/
-    //else
-      //Buzzer=0;
+    TIME1flag_1s=1;
+    second++;
   }
   LPLD_PIT_EnableIrq(pit0_init_struct);                           //开pit0中断
 }
@@ -107,6 +118,7 @@ void pta_isr(void)
     if(PTA12_I==0)
     { 
       speed_hope=0;
+      display(5);
       while(1)
       {
         getSpeed();

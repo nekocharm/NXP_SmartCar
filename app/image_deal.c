@@ -6,6 +6,7 @@ uint8 Temp;
 uint8 Temp_1;
 uint16 i = 0;
 uint16 j = 0;
+uint8 magnet_flag=0;
 
 
 
@@ -160,7 +161,7 @@ uint8 bar_flag=0;
 
 /***************起跑线检测*****************/
 void Start_Flag();   //起跑线检测
-uint8 jiance_qi=1;//检测起跑线标志，如果有圆环之后，开始检测起跑线
+uint8 jiance_qi=0;//检测起跑线标志，如果有圆环之后，开始检测起跑线
 uint8 qipao_flag=0;//起跑线标志
 uint8 qi_temp=0;
 uint8 qi_temp2=0;
@@ -219,6 +220,12 @@ uint8 R_Circle_Flag = 0;        //右环岛标志位
 uint8 L_Circle_Flag = 0;        //左环岛标志位
 /******************************************/
 
+/*****************断路******************/
+uint32 Duan_count = 0; 
+uint8 Duan_flag = 0;
+/******************************************/
+
+
 
 
 
@@ -231,7 +238,9 @@ void image_deal()
 	Save_Bound();   //初始边线保存
 	Filters() ;//中值滤波
 	Bu();  //补线
+  
   Bu_Circle() ;//环岛  
+  Duanlu();
 	Bu_Crossroad(); //十字补线
 	Bu_Curve() ;  //弯道补线
 	Start_Flag();  //起跑检测
@@ -239,7 +248,7 @@ void image_deal()
 	Calculation_Differ() ;//计算打角differ
 	Calculation_Pd();//计算舵机Pd值;
   //Bar();
-  //duanlu();
+  
 }
 /*****************************************************/
 
@@ -552,7 +561,7 @@ void Bu_Circle()   //环岛补线
     if(!Image_Data[i][temp1])
       break;
   }
-  R_Huan_K_Entry=10*(fa_right[ROW-3]-30)/(59-i);//右环岛补线斜率/35
+  R_Huan_K_Entry=10*(fa_right[ROW-3]-33)/(59-i);//右环岛补线斜率/35
   
   /******************右环岛识别***********/
   if(R_Huan_Cliff_Flag&&!R_Huan_Flag&&Lost_Right[30]&&Lost_Right[32]&&!Lost_Left[30]&&!Lost_Left[32])  //第一阶段:右丢线，左不丢线,直道长度大于57，赛道宽度大于110小于150
@@ -607,9 +616,8 @@ void Bu_Circle()   //环岛补线
     g_lu_flag=7;
   }
   
-  if(R_Huan_Flag&&R_Huan_Exit_Temp_Flag&&R_Huan_Time_Counter > 120) //进环岛后，时间超过50，且左边丢线，判为出环岛
+  if(R_Huan_Flag&&R_Huan_Exit_Temp_Flag&&R_Huan_Time_Counter > 100) //进环岛后，时间超过50，且左边丢线，判为出环岛
   {
-    //buzzer_Flag=0;
     Buzzer=0;//Buzzer
     R_Huan_Exit_Flag = 1;
     R_Huan_Time_Counter = 0;
@@ -618,6 +626,7 @@ void Bu_Circle()   //环岛补线
   
   if(R_Huan_Exit_Flag && R_Huan_Time_Counter > 30)  //判断为出环岛后，时间超过20，环岛结束//40
   {
+    magnet_flag=1;
     //buzzer_Flag=0;
     R_Huan_Exit_Flag = 0;
     R_Huan_Flag = 0;
@@ -672,14 +681,14 @@ void Bu_Circle()   //环岛补线
   //
   for(i=5; i<ROW-5; i++)    //出环岛标志右边出现边线   
 	{
-    if((fa_right[i]-fa_right[i-2])>0&&(fa_right[i-1]-fa_right[i-3])>0&&(fa_right[i-2]-fa_right[i-4])>0&&
-      (fa_right[i]-fa_right[i+2])>0&&(fa_right[i+1]-fa_right[i+3])>0&&(fa_right[i+2]-fa_right[i+4])>0)
+    if((fa_right[i]-fa_right[i-2])<0&&(fa_right[i-1]-fa_right[i-3])<0&&(fa_right[i-2]-fa_right[i-4])<0&&
+      (fa_right[i]-fa_right[i+2])<0&&(fa_right[i+1]-fa_right[i+3])<0&&(fa_right[i+2]-fa_right[i+4])<0)
     {
       L_Huan_Exit_Temp_Y  = i;
       break;
     }
 	}
-  //
+  
   if(L_Huan_Exit_Temp_Y >30)
     L_Huan_Exit_Temp_Flag = 1;
   
@@ -767,18 +776,18 @@ void Bu_Circle()   //环岛补线
     g_lu_flag=7;
   }
   
-  if(L_Huan_Flag&&L_Huan_Exit_Temp_Flag&&L_Huan_Time_Counter > 120) //进环岛后，时间超过50，且左边丢线，判为出环岛
+  if(L_Huan_Flag&&L_Huan_Exit_Temp_Flag&&L_Huan_Time_Counter > 90) //进环岛后，时间超过50，且左边丢线，判为出环岛
   {
-    //buzzer_Flag=0;
-    //Buzzer=0;//Buzzer
+    Buzzer=0;
     L_Huan_Exit_Flag = 1;
     L_Huan_Time_Counter = 0;
   }
  
   
-  if(L_Huan_Exit_Flag && L_Huan_Time_Counter > 40)  //判断为出环岛后，时间超过20，环岛结束//40
+  if(L_Huan_Exit_Flag && L_Huan_Time_Counter > 30)  //判断为出环岛后，时间超过20，环岛结束//40
   {
-    Buzzer=0;
+    //Buzzer=0;
+    magnet_flag=1;
     L_Huan_Exit_Flag = 0;
     L_Huan_Flag = 0;
     L_Huan_Time_Counter = 0;
@@ -967,6 +976,8 @@ void Bu_Crossroad() //十字补线
 	}
 }
 
+
+
 void Bu_Curve()   //弯道补线
 {
 	zhongzhuanl=0;
@@ -979,48 +990,58 @@ void Bu_Curve()   //弯道补线
 	xf_righty=COLUMN-1;
 	wan_flag=0;
 
-	for(i=ROW-1; i>3; i--) //找到跳变点      这里有问题
+	for(i=ROW-1; i>3; i--)//从下向上查找
 	{
-		if(Abs(le_left[i],le_left[i-1])>40&&Abs(le_left[i],le_left[i-2])>40&&
-		        Abs(le_left[i],le_left[i-3])>40)   //差值绝对值
+		if(Abs(le_left[i],le_left[i-1])>40
+      &&Abs(le_left[i],le_left[i-2])>40
+      &&Abs(le_left[i],le_left[i-3])>40)   //左边线跳变点
 		{
-			zhongzhuanl=i;
+      zhongzhuanl=i;  //左转点
 			break;
 		}
 	}
-	for(i=ROW-1; i>3; i--)     //找到跳变点
+	for(i=ROW-1; i>3; i--)//从下向上查找  
 	{
 		//连续三点，两两绝对差值超过四十
-		if(Abs(le_right[i],le_right[i-1])>40&&Abs(le_right[i],le_right[i-2])>40&&
-		        Abs(le_right[i],le_right[i-3])>40)
+		if(Abs(le_right[i],le_right[i-1])>40
+      &&Abs(le_right[i],le_right[i-2])>40
+      &&Abs(le_right[i],le_right[i-3])>40)  //右边线跳变点
 		{
-			zhongzhuanr=i;
+			zhongzhuanr=i;    //右转点
 			break;
 		}
 	}
-	if(zhongzhuanl&&le_left[zhongzhuanl]>zhongdian)//找到没有边线的地方
+	if(zhongzhuanl&&le_left[zhongzhuanl]>zhongdian)//找到没有右边线的地方
 	{
-		for(i=zhongzhuanl; i<ROW-6; i++)
+		for(i=zhongzhuanl; i<ROW-6; i++)  //跳变点向下查找
 		{
-			if(le_right[i]==COLUMN&&le_right[i+1]==COLUMN&&le_right[i+2]==COLUMN&&le_right[i+3]==COLUMN&&
-			        le_right[i+4]==COLUMN&&le_right[i+5]==COLUMN)
+			if(le_right[i]==COLUMN-1
+        &&le_right[i+1]==COLUMN-1
+        &&le_right[i+2]==COLUMN-1
+        &&le_right[i+3]==COLUMN-1
+        &&le_right[i+4]==COLUMN-1
+        &&le_right[i+5]==COLUMN-1)  //右边线为最右边
 			{
-				xf_right=1;
+				xf_right=1;  //右限幅
 				temp2=i;
 				break;
 			}
 		}
 
 	}
-	if(zhongzhuanr&&le_right[zhongzhuanr]<zhongdian)//找到没有边线的地方
+	if(zhongzhuanr&&le_right[zhongzhuanr]<zhongdian)//找到没有左边线的地方
 	{
 		for(i=zhongzhuanr; i<ROW-6; i++)
 		{
-			if(!le_left[i]&&!le_left[i+1]&&!le_left[i+2]&&!le_left[i+3]&&
-			        !le_left[i+4]&&!le_left[i+5])
+			if(!le_left[i]
+        &&!le_left[i+1]
+        &&!le_left[i+2]
+        &&!le_left[i+3]
+        &&!le_left[i+4]
+        &&!le_left[i+5])    //左边线为最左边 
 			{
 
-				xf_left=1;
+				xf_left=1;  //左限幅
 				temp3=i;
 				break;
 			}
@@ -1029,7 +1050,7 @@ void Bu_Curve()   //弯道补线
 	if(xf_right)//左边限幅，左右边线均在最右边
 	{
 		wan_flag=1;
-		for(i=zhongzhuanl; i>0; i--)
+		for(i=zhongzhuanl; i>0; i--)  //从跳变点向上查找
 		{
 			le_left[i]=xf_rightz;
 		}
@@ -1053,12 +1074,14 @@ void Bu_Curve()   //弯道补线
 	}
 	/**************************************/
 	/***************一般补线***************/
+  
 	zhongzhuanl=0;
 	zhongzhuanr=0;
-	for(i=ROW-4; i>0; i--)
+	for(i=ROW-4; i>0; i--)  //从下向上查找
 	{
-		if(i>6&&le_left[i]<30&&!le_left[i-1]&&!le_left[i-2]&&!le_left[i-3]&&!le_left[i-4]&&
-		        !le_left[i-5]&&!le_left[i-6]&&!le_left[i-7]&&!le_left[i-8]&&!le_left[i-9])//总共7个点，十字是8个点
+		if(i>6&&le_left[i]<30
+      &&!le_left[i-1]&&!le_left[i-2]&&!le_left[i-3]&&!le_left[i-4]
+      &&!le_left[i-5]&&!le_left[i-6]&&!le_left[i-7]&&!le_left[i-8]&&!le_left[i-9])//总共7个点，十字是8个点//左边线连续九行为零
 		{
 			le_left[i-1]=1;
 			le_left[i-2]=1;
@@ -1072,9 +1095,9 @@ void Bu_Curve()   //弯道补线
 			if(i>25)
 				wan_flag=1;
 		}
-		if(i>6&&le_right[i]>COLUMN-30&&le_right[i-1]==COLUMN&&le_right[i-2]==COLUMN&&le_right[i-3]==COLUMN&&
-		        le_right[i-4]==COLUMN&&le_right[i-5]==COLUMN&&le_right[i-6]==COLUMN&&le_right[i-7]==COLUMN&&
-		        le_right[i-8]==COLUMN&&le_right[i-9]==COLUMN)
+		if(i>6&&le_right[i]>COLUMN-30
+      &&le_right[i-1]==COLUMN&&le_right[i-2]==COLUMN&&le_right[i-3]==COLUMN&&le_right[i-4]==COLUMN
+      &&le_right[i-5]==COLUMN&&le_right[i-6]==COLUMN&&le_right[i-7]==COLUMN&&le_right[i-8]==COLUMN&&le_right[i-9]==COLUMN)
 		{
 			le_right[i-1]=COLUMN-1;
 			le_right[i-2]=COLUMN-1;
@@ -1084,27 +1107,36 @@ void Bu_Curve()   //弯道补线
 			le_right[i-6]=COLUMN-1;
 			le_right[i-7]=COLUMN-1;
 			le_right[i-8]=COLUMN-1;
-			le_right[i-9]=COLUMN-1;
+			le_right[i-9]=COLUMN-1;  //这个是为了不让在十字的地方补线使用
 			if(i>25)
 				wan_flag=1;
 		}
+    
+    
 		if(le_left[i]>((i/40)+1)*14)//跳变点的阈值
 			zhongzhuanl=le_left[i];
 		else
 			zhongzhuanl=((i/40)+1)*14;
+    
+    
 		if(le_right[i]>((i/40)+1)*14)
 			zhongzhuanr=le_right[i];
 		else
 			zhongzhuanr=((i/40)+1)*14;
+    
+    
 		//bu_  ==3  是直角  ==1是十字
 		if(bu_left[i-1]!=3&&bu_left[i-1]!=1&&(!le_left[i-1]
-		                                      ||(le_left[i-1]<zhongzhuanl-((i/40)+1)*14||le_left[i-1]>zhongzhuanl+((i/40)+1)*14)
-		                                      ||(le_left[i]>le_left[i-1]+5&&le_left[i-1]+5<le_left[i-2])
-		                                      ||(le_left[i]+5<le_left[i-1]&&le_left[i-1]>le_left[i-2]+5)))//考虑往外情况，往内没考虑
+      ||(le_left[i-1]<zhongzhuanl-((i/40)+1)*14
+      ||le_left[i-1]>zhongzhuanl+((i/40)+1)*14)
+      ||(le_left[i]>le_left[i-1]+5&&le_left[i-1]+5<le_left[i-2])
+		  ||(le_left[i]+5<le_left[i-1]&&le_left[i-1]>le_left[i-2]+5)))//考虑往外情况，往内没考虑
 		{
 			chazhil1=le_left[i+2]-le_left[i+1];
 			chazhil2=le_left[i+3]-le_left[i+1];
 			chazhil=(int)(chazhil2/2);
+      
+      
 			if(chazhil)//间隔超过2时
 				chazhil=(int)((chazhil1+(chazhil2/2))/2);
 			else if(chazhil2<2&&chazhil2>-2)//否则就按照间隔两点的差值补线
@@ -1115,16 +1147,20 @@ void Bu_Curve()   //弯道补线
 				le_left[i-1]=1;
 			else                         //在最右边
 				le_left[i-1]=COLUMN-1;
+        
 			bu_left[i-1]=2;//补线标志变成2     下同
 		}
 		if(bu_right[i-1]!=3&&bu_right[i]!=1&&(le_right[i-1]==COLUMN
-		                                      ||(le_right[i-1]<zhongzhuanr-((i/40)+1)*14||le_right[i-1]>zhongzhuanr+((i/40)+1)*14)
-		                                      ||(le_right[i]+5<le_right[i-1]&&le_right[i-1]>le_right[i-2]+5)
-		                                      ||(le_right[i]>le_right[i-1]+5&&le_right[i-1]+5<le_right[i-2])))
+      ||(le_right[i-1]<zhongzhuanr-((i/40)+1)*14
+      ||le_right[i-1]>zhongzhuanr+((i/40)+1)*14)
+		  ||(le_right[i]+5<le_right[i-1]&&le_right[i-1]>le_right[i-2]+5)
+		  ||(le_right[i]>le_right[i-1]+5&&le_right[i-1]+5<le_right[i-2])))
 		{
 			chazhir1=le_right[i+2]-le_right[i+1];
 			chazhir2=le_right[i+3]-le_right[i+1];
 			chazhir=(int)(chazhir2/2);
+      
+      
 			if(chazhir!=0)
 				chazhir=(int)((chazhir1+(chazhir2/2))/2);
 			else if(chazhir2<2&&chazhir2>-2)
@@ -1135,8 +1171,10 @@ void Bu_Curve()   //弯道补线
 				le_right[i-1]=1;
 			else
 				le_right[i-1]=COLUMN-1;
+      
 			bu_right[i-1]=2;
 		}
+    
 		if(le_right[i-1]<le_left[i-1])//防止补线补反掉了
 		{
 			if(le_right[i]>zhongdian-1&&le_left[i]>zhongdian-1)
@@ -1144,11 +1182,14 @@ void Bu_Curve()   //弯道补线
 			else if(le_right[i]<zhongdian+1&&le_left[i]<zhongdian+1)
 				le_left[i-1]=le_right[i-1]-2;
 		}
+    
 		le_mid[i-1]=(le_left[i-1]+le_right[i-1])>>1;
+    
 		if(le_left[i]>COLUMN-44&&le_left[i-1]>COLUMN-39)//当左边线或者右边线超过一定的值得时候就把他补线过去
 		{
 			zhongzhuanl=le_left[i-1];//
 			zhongzhuanr=COLUMN-2;
+      
 			for(; i>0; i--)
 			{
 				le_left[i-1]=zhongzhuanl;
@@ -1158,6 +1199,7 @@ void Bu_Curve()   //弯道补线
 			i=1;
 			break;
 		}
+    
 		if(le_right[i]<45&&le_right[i-1]<40)
 		{
 			zhongzhuanr=le_right[i-1];//
@@ -1171,8 +1213,10 @@ void Bu_Curve()   //弯道补线
 			i=1;
 			break;
 		}
+    
 	}
 }
+
 void Start_Flag()  //起跑检测
 {
 	qi_temp2=0;
@@ -1233,6 +1277,7 @@ void Calculation_Differ() //计算打角differ
 	                                   le_left[shangyan-1]<zhongdian||le_left[shangyan]<zhongdian)&&
 	        (le_right[shangyan-2]>zhongdian||le_right[shangyan-1]>zhongdian||
 	         le_right[shangyan]>zhongdian); shangyan--);   //寻找赛道上边沿
+
 	daoluyuzhi=daoluyuzhi_temp;
   daoluyuwanl=daoluyuwanl_temp;
   daoluyuwanr=daoluyuwanr_temp;
@@ -1344,8 +1389,8 @@ void Calculation_Differ() //计算打角differ
 		}
 		differ = zhongdian-(le_mid[37]+le_mid[36])/2;
 	}
-        Actuall_Mid = fa_mid[57];
-        Actuall_Ekk = Actuall_Mid - 80;
+  Actuall_Mid = fa_mid[57];
+  Actuall_Ekk = Actuall_Mid - 80;
 
 }
 
@@ -1446,7 +1491,6 @@ void Get(uint8 *bArray, uint8 iFilterLen)
 				bTemp = bArray[i];
 				bArray[i] = bArray[i + 1];
 				bArray[i + 1] = bTemp;
-
 			}
 		}
 	}
@@ -1486,9 +1530,54 @@ void Bar()
     buzzer_Flag=0;   
   }
 }
-void duanlu()
+void Duanlu()//白1黑0
 {
-  for(i=0;i<15&&Image_Data[i+2][le_mid[i+2]]&&Image_Data[i+4][le_mid[i+4]]&&Image_Data[i+6][le_mid[i+6]]
-      &&Image_Data[i+6][40]==Image_Data[i+6][120]&&Image_Data[i+6][100]==Image_Data[i+6][60]&&Distance>1000;i++)
-    g_lu_flag=8;
+  /*for(i=ROW-1; i>3; i--)//从下向上查找
+	{
+		if((le_left[i]-le_left[i+1]>30
+      &&le_left[i]-le_left[i+2]>30
+      &&le_left[i]-le_left[i-3]>30)||(le_right[i+1]-le_right[i]>30
+      &&le_right[i+2]-le_right[i]>30
+      &&le_right[i+3]-le_right[i]>30))    
+		{
+      if(i>ROW-20&&((!Image_Data[i][le_left[i]]&&!Image_Data[i][le_left[i]+10]&&!Image_Data[i][le_left[i]-10])
+        ||(!Image_Data[i][le_right[i]]&&!Image_Data[i][le_right[i]+10]&&!Image_Data[i][le_right[i]-10]))
+        &&Image_Data[i+5][70]==Image_Data[i+5][90]&&Image_Data[i+5][60]==Image_Data[i+5][100])
+      {
+        g_lu_flag=8;//
+        Duan_flag=1;
+        Duan_count++;
+        Buzzer=1;
+        break;
+      }
+		}
+	}
+  
+  if(Duan_count>2000)
+    Duan_count=1999;
+  for(i=0; i<ROW-15; i++)       //
+	{
+    if(Abs(le_left[i],le_left[i-1])>20
+      &&Abs(le_left[i],le_left[i-2])>20
+      &&Abs(le_left[i],le_left[i-3])>20&&Abs(le_right[i],le_right[i-1])>30
+      &&Abs(le_right[i],le_right[i-2])>30
+      &&Abs(le_right[i],le_right[i-3])>30)
+    {
+      Duan_flag=0;
+      Duan_count=0;
+      Buzzer=0;
+      break;
+    }
+	}*/
+  if(shangyan>ROW-11)
+  {
+    Duan_flag=1;
+   // Buzzer=1;
+  }
+  
+  if(Image_Data[55][70]&&Image_Data[55][80]&&Image_Data[55][75]&&Image_Data[55][90]&&Image_Data[55][85])
+  {
+    Duan_flag=0;
+   // Buzzer=0;
+  }
 }
