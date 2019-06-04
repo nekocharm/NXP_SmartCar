@@ -140,7 +140,7 @@
 #define OV7725_MTX_Ctrl  0x9A
 #define OV7725_BRIGHT    0x9B
 
-#define OV7725_CNST      0x96//0x9c
+#define OV7725_CNST      0x94//0x9c/95
 
 #define OV7725_UVADJ0    0x9E
 #define OV7725_UVADJ1    0x9F

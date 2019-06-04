@@ -10,6 +10,7 @@ extern int R_Huan_Time_Counter ;    //右环岛辅助计时器
 extern int  Actuall_Ekk;         //实际偏差
 extern uint8 R_Huan_Flag; 
 //extern uint16 le_mid2[ROW];
+extern uint8 R_Huan_In_Flag;
 
 extern float  kpzhi;//直道的p值
 extern float  kdzhi;
@@ -109,9 +110,14 @@ extern uint8 L_Huan_Predict2_Flag ;
 extern uint8 L_Huan_Cliff_Flag ;      
 extern float L_Huan_K_Entry;   
 
-
+extern uint8 magnet_flag1;
 extern uint8 magnet_flag;
 extern uint8 jiance_qi;
+extern uint8 huan_turnon;
+extern uint8 magnethuan;
+extern uint8 R_Huan_Predict1_Flag;
+extern uint8 duanlu1;
+extern uint8 zhangchi;
 
 
 

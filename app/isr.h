@@ -6,6 +6,7 @@ extern int8 second;
 extern int8 minute;
 extern PIT_InitTypeDef pit0_init_struct;
 extern uint8 TIME1count;
+extern uint8 stop;
 
 void pit0_isr(void);
 void pta_isr(void);

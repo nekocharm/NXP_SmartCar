@@ -7,6 +7,13 @@ uint8 Temp_1;
 uint16 i = 0;
 uint16 j = 0;
 uint8 magnet_flag=0;
+uint8 magnet_flag1=0;
+uint8 huan_turnon=1;
+uint8 magnethuan=0;
+uint8 duanlu1=0;
+uint8 s_flag1=0;
+uint8 s_flag2=0;
+uint8 zhangchi=0;
 
 
 
@@ -104,6 +111,7 @@ uint8 g_lu_flag=10;
 //g_lu_flag=6 障碍
 //g_lu_flag=7;环岛
 //g_lu_flag=8;断路
+//9s
 uint8  wan_flag=0;//赛道限幅十使用
 uint8 g_shi_flag=0;//十字标志位;
 /********************************************/
@@ -238,9 +246,8 @@ void image_deal()
 	Save_Bound();   //初始边线保存
 	Filters() ;//中值滤波
 	Bu();  //补线
-  
-  Bu_Circle() ;//环岛  
   Duanlu();
+  Bu_Circle() ;//环岛  
 	Bu_Crossroad(); //十字补线
 	Bu_Curve() ;  //弯道补线
 	Start_Flag();  //起跑检测
@@ -561,7 +568,7 @@ void Bu_Circle()   //环岛补线
     if(!Image_Data[i][temp1])
       break;
   }
-  R_Huan_K_Entry=10*(fa_right[ROW-3]-33)/(59-i);//右环岛补线斜率/35
+  R_Huan_K_Entry=10*(fa_right[ROW-3]-35)/(59-i);//右环岛补线斜率/35
   
   /******************右环岛识别***********/
   if(R_Huan_Cliff_Flag&&!R_Huan_Flag&&Lost_Right[30]&&Lost_Right[32]&&!Lost_Left[30]&&!Lost_Left[32])  //第一阶段:右丢线，左不丢线,直道长度大于57，赛道宽度大于110小于150
@@ -578,15 +585,16 @@ void Bu_Circle()   //环岛补线
       R_Huan_Time_Counter = 0;
       R_Huan_Predict1_Flag = 0;
     }
-    if(!Lost_Right[30]&&!Lost_Right[32]&&!Lost_Left[30]&&!Lost_Left[32]&&R_Huan_Time_Counter>3)  //第二阶段:左右均不丢线，直道长度大于50，时间超过3
+    if(!Lost_Right[30]&&!Lost_Right[32]&&!Lost_Left[30]&&!Lost_Left[32]&&R_Huan_Time_Counter>2)  //第二阶段:左右均不丢线，直道长度大于50，时间超过3
     {
       R_Huan_Predict2_Flag = 1;
       R_Huan_Predict1_Flag = 0;
       R_Huan_Time_Counter = 0;
     }
   }
-  if(R_Huan_Predict2_Flag&&Lost_Right[30]&&Lost_Right[32]&&!Lost_Left[30]&&!Lost_Left[32])//环岛入口（第三阶段）：右丢线，左不丢线
+  if(!Duan_flag&&!magnethuan&&huan_turnon&&R_Huan_Predict2_Flag&&Lost_Right[30]&&Lost_Right[32]&&!Lost_Left[30]&&!Lost_Left[32])//环岛入口（第三阶段）：右丢线，左不丢线
     {
+      //magnet_flag=1;
       R_Huan_Flag = 1;
       R_Huan_Entry_Flag = 0;
       R_Huan_In_Flag = 0;     
@@ -600,7 +608,7 @@ void Bu_Circle()   //环岛补线
       R_Huan_Time_Counter = 0;
       R_Huan_Predict2_Flag = 0;
     }
-  if(!R_Huan_Exit_Flag&&R_Huan_Flag&&R_Huan_Time_Counter<40)//40  //判断为环岛，且时间小于20，为环岛入口 
+  if(!R_Huan_Exit_Flag&&R_Huan_Flag&&R_Huan_Time_Counter<20)//40  //判断为环岛，且时间小于20，为环岛入口 
   {
     R_Huan_Entry_Flag = 1; 
   }
@@ -612,7 +620,8 @@ void Bu_Circle()   //环岛补线
   if(R_Huan_Entry_Flag)
   {
     //buzzer_Flag=1;
-    Buzzer=1;
+    //Buzzer=1;
+    //LPLD_UART_PutChar(UART4,(int8)speed_hope);
     g_lu_flag=7;
   }
   
@@ -631,10 +640,15 @@ void Bu_Circle()   //环岛补线
     R_Huan_Exit_Flag = 0;
     R_Huan_Flag = 0;
     R_Huan_Time_Counter = 0;
+    par(zhangchi);
   }
    
   if(R_Huan_Flag&&!R_Huan_Entry_Flag&&!R_Huan_Exit_Flag) //判断为环岛，既不是入口，也不是出口，为环岛内
+    
+  {
     R_Huan_In_Flag = 1;
+    //Buzzer=0;
+  }
   else
     R_Huan_In_Flag = 0;
   /***********************************************/
@@ -659,7 +673,7 @@ void Bu_Circle()   //环岛补线
     }
     
   } 
-  
+ 
   
   /****************************************/
   /*             左环岛识别               */
@@ -745,8 +759,9 @@ void Bu_Circle()   //环岛补线
       L_Huan_Time_Counter = 0;
     }
   }
-  if(L_Huan_Predict2_Flag&&!Lost_Right[30]&&!Lost_Right[32]&&Lost_Left[30]&&Lost_Left[32])//环岛入口（第三阶段）：右丢线，左不丢线
+  if(!Duan_flag&&!magnethuan&&huan_turnon&&L_Huan_Predict2_Flag&&!Lost_Right[30]&&!Lost_Right[32]&&Lost_Left[30]&&Lost_Left[32])//环岛入口（第三阶段）：右丢线，左不丢线
     {
+      //magnet_flag=1;
       L_Huan_Flag = 1;
       L_Huan_Entry_Flag = 0;
       L_Huan_In_Flag = 0;     
@@ -772,7 +787,7 @@ void Bu_Circle()   //环岛补线
   if(L_Huan_Entry_Flag)
   {
     //buzzer_Flag=1;
-    Buzzer=1;
+    //Buzzer=1;
     g_lu_flag=7;
   }
   
@@ -794,7 +809,9 @@ void Bu_Circle()   //环岛补线
   }
    
   if(L_Huan_Flag&&!L_Huan_Entry_Flag&&!L_Huan_Exit_Flag) //判断为环岛，既不是入口，也不是出口，为环岛内
+  {
     L_Huan_In_Flag = 1;
+  }
   else
     L_Huan_In_Flag = 0;
   /***********************************************/
@@ -1242,6 +1259,7 @@ void Start_Flag()  //起跑检测
 						{
 							qi_temp2=0;
 							qipao_flag=1;
+              //differ=0;
               //Buzzer=1;
 						}
 						break;
@@ -1263,6 +1281,8 @@ void Find_Mid()  //补完线重新计算中点
 void Calculation_Differ() //计算打角differ
 {
 	daolub=0;//道路开始
+  s_flag1=0;
+  s_flag2=0;
 
 	for(shangbian=ROW-3; shangbian>2&&(le_left[shangbian]<COLUMN-shang_r||
 	                                   le_left[shangbian-1]<COLUMN-shang_r||le_left[shangbian-2]<COLUMN-shang_r)&&
@@ -1277,6 +1297,7 @@ void Calculation_Differ() //计算打角differ
 	                                   le_left[shangyan-1]<zhongdian||le_left[shangyan]<zhongdian)&&
 	        (le_right[shangyan-2]>zhongdian||le_right[shangyan-1]>zhongdian||
 	         le_right[shangyan]>zhongdian); shangyan--);   //寻找赛道上边沿
+  
 
 	daoluyuzhi=daoluyuzhi_temp;
   daoluyuwanl=daoluyuwanl_temp;
@@ -1391,6 +1412,30 @@ void Calculation_Differ() //计算打角differ
 	}
   Actuall_Mid = fa_mid[57];
   Actuall_Ekk = Actuall_Mid - 80;
+  if(/*R_Huan_Entry_Flag*//*R_Huan_Flag*//*&&!R_Huan_In_Flag*//*(R_Huan_Predict2_Flag||*/R_Huan_Flag&&!R_Huan_In_Flag)
+    differ=-50;
+  /*for(i=0;i<ROW-5;i++)
+  {
+    if(Image_Data[i][le_right[i]]==!Image_Data[i+1][le_right[i]]&&Image_Data[i][le_right[i]]==!Image_Data[i+2][le_right[i]])
+    {
+      s_flag1++;
+    }
+    if(Image_Data[59-i][le_left[59-i]]==!Image_Data[58-i][le_left[59-i]]&&Image_Data[59-i][le_left[59-i]]==!Image_Data[57-i][le_left[59-i]])
+    {
+      s_flag2++;
+    }
+    
+  }
+  if(Abs(s_flag1,s_flag2)>=0)
+  {
+    Buzzer=1;
+    g_lu_flag=9;
+      //break;
+  }
+  else
+  {
+    Buzzer=0;
+  }*/
 
 }
 
@@ -1463,6 +1508,11 @@ void Calculation_Pd()//计算舵机Pd值
 		servo_Kp=kpbar;
 		servo_Kd=kdbar;
 	}
+  if(R_Huan_Flag)
+  {
+    servo_Kp=kpyuhuan;
+    servo_Kd=kdyuhuan;
+  }
 }
 
 
@@ -1569,15 +1619,29 @@ void Duanlu()//白1黑0
       break;
     }
 	}*/
-  if(shangyan>ROW-11)
+  if(shangyan>ROW-12&&duanlu1)
   {
     Duan_flag=1;
-   // Buzzer=1;
+    //Buzzer=1;
+    Duan_count++;
   }
+  if(Duan_count>2000)
+    Duan_count=1999;
   
-  if(Image_Data[55][70]&&Image_Data[55][80]&&Image_Data[55][75]&&Image_Data[55][90]&&Image_Data[55][85])
+  if(/*!Image_Data[56][10]&&!Image_Data[56][20]&&!Image_Data[56][30]&&!Image_Data[56][40]&&!Image_Data[56][50]
+     &&!Image_Data[56][60]&&!Image_Data[56][70]&&!Image_Data[56][80]&&!Image_Data[56][90]&&!Image_Data[56][100]
+     &&!Image_Data[56][110]&&!Image_Data[56][120]&&!Image_Data[56][130]&&!Image_Data[56][140]&&!Image_Data[56][150] 
+     &&(Image_Data[55][80]||Image_Data[54][80]||Image_Data[53][80]||Image_Data[52][80]||Image_Data[51][80]
+        ||Image_Data[50][80]||Image_Data[49][80]||Image_Data[48][80]||Image_Data[47][80]||
+          Image_Data[46][80]||Image_Data[45][80]||Image_Data[44][80])*/
+     Image_Data[56][80]&&Image_Data[50][80]&&Image_Data[45][80]&&Image_Data[40][80]&&Image_Data[35][80]&&Image_Data[30][80]&&
+       Image_Data[25][80]&&Image_Data[20][80]&&Image_Data[15][80]&&Image_Data[10][80])
   {
     Duan_flag=0;
-   // Buzzer=0;
+    if(Duan_count>80)
+      magnethuan=1;
+    Duan_count=0;
+    GUI_wrlval(0, 4,(int32)Duan_count,4,0);
+    //Buzzer=0;
   }
 }

@@ -63,7 +63,10 @@ void main (void)
     case 4:
       while(1)
       { 
-        display(4);
+	LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch0, 0);
+	LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch1, 3000);
+	LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch2, 3000);
+	LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch3, 0);
       }
     case 5:
       while(1)
@@ -113,20 +116,46 @@ void main (void)
     
     /******************摄像头和电磁运行*******************/
     case 64:
-      par(1);
+      par(2);//反转
       Delay_Ms(2000);
       //GUI_wrlval(0, 0,(int32)dip,4,0);
       while(1)
       {
         GO3();
       }
-    case 65:
-      par(1);
+    case 65://正转
+      par(3);
+      Delay_Ms(2000);
+      zhangchi=2;
+      while(1)
+      {
+        GO3();
+      }
+    case 67://正传无环岛
+      par(3);
+      huan_turnon=0;
       Delay_Ms(2000);
       while(1)
       {
         GO3();
-        display(6);
+      }
+    case 66://fanzhuan
+      par(2);
+      huan_turnon=0;
+      Delay_Ms(2000);
+      while(1)
+      {
+        GO3();
+        //display(2);
+      }
+    case 68://正传不加速
+      par(3);
+      //huan_turnon=0;
+      Delay_Ms(2000);
+      zhangchi=3;
+      while(1)
+      {
+        GO3();
       }
     /*********************************************/
   }
@@ -151,9 +180,10 @@ void GO1()
         image_getted=0;  
         image_deal();
       }
-      Servo_PD(differ);
+      //Servo_PD(differ);
+      Servo_PD(0);
       getSpeed();
-      Motor_pid_Stop(leftMotorSpeed,rightMotorSpeed);
+      //Motor_pid_Stop(leftMotorSpeed,rightMotorSpeed);
     }
   }
   
@@ -199,20 +229,22 @@ void GO3()
     Servo_PD(differ);
   }
   
-  if(qipao_flag)
+  /*if(qipao_flag)
   {
+    Servo_PD(0);
     LPLD_PIT_DisableIrq(pit0_init_struct);
-    display(5);
+    //display(5);
 		while(1)
     {
       if(image_getted)
       {
         image_getted=0;  
         image_deal();
+        //speedcontrol();  
       }
-      Servo_PD(differ);
+      //Servo_PD(differ); 
       getSpeed();
       Motor_pid_Stop(leftMotorSpeed,rightMotorSpeed);
     }
-  }
+  }*/
 }

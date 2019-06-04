@@ -129,25 +129,23 @@ void magnet_deal()
 	if(Flag_Round>50) 
 		Flag_Round=0;  */   
   
-	if(Flag_Round==0)
-  {
-    if(DirectionErr[0]<0.15&&DirectionErr[0]>-0.15)
+    /*if(DirectionErr[0]>0.19||DirectionErr[0]<-0.19)
     {
       servo_Kp=kpyu;
       servo_Kd=kdyu;
-      DirectionOut=DirectionErr[0]*(Direction_P)+DirectionErr_dot[0]*(Direction_D);//这一部分由于水平电感位置不同要根据一定规律设置
+      DirectionOut=DirectionErr[0]*(Direction_P+710)+DirectionErr_dot[0]*(Direction_D+500);//这一部分由于水平电感位置不同要根据一定规律设置
     }
-    else
+    /*else if(DirectionErr[0]>0.01||DirectionErr[0]<-0.01)
     {
+      servo_Kp=kpyu;
+      servo_Kd=kdyu;
+      DirectionOut=DirectionErr[0]*(Direction_P+460)+DirectionErr_dot[0]*(Direction_D+300);
+    }*/
+    //else
+    //{
       servo_Kp=kpyu;
       servo_Kd=kdyu;
       DirectionOut=DirectionErr[0]*Direction_P+DirectionErr_dot[0]*Direction_D;
-    }
-  }
-	else
-  { 
-    DirectionOut=DirectionErr[1]*700+DirectionErr_dot[1]*1600;
-    Flag_Round=Flag_Round+1;
-  }
+    //}
   differ=(int16)DirectionOut;
 }

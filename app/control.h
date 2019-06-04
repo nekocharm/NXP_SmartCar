@@ -6,7 +6,7 @@
 void getSpeed();
 void speedcontrol();
 void Motor_pid(uint16,uint16,uint16);
-void Motor_pid_Stop(uint16,uint16);
+void Motor_Stop(uint16,uint16);
 
 /*舵机函数*/
 

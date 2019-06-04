@@ -20,6 +20,7 @@ uint8 Isr_Count=0;
 int16 microsecond=0;
 int8 second=0;
 uint16 magnet_count=0;
+uint8 stop=0;
 
 void pit0_isr(void)                               //测速子程序
 {
@@ -46,11 +47,28 @@ void pit0_isr(void)                               //测速子程序
   {
     magnet_count++;
     if(magnet_count>999)
-      magnet_flag=0;  
+    {
+      magnet_flag=0;
+      magnet_flag1=0;
+    }
+  }
+  if(magnethuan)
+  {
+    magnet_count++;
+    if(magnet_count>1699)
+      magnethuan=0;  
+  }
+  if(qipao_flag)
+  {
+    magnet_count++;
+    if(magnet_count>10)
+      stop=1;
   }
   if(second>9)
     jiance_qi=1;
-   
+    //duanlu1=1;
+  if(second>5)
+    duanlu1=1;
   if(count_pit0%5==0)
   {
     TIME0flag_5ms=1;
@@ -62,7 +80,10 @@ void pit0_isr(void)                               //测速子程序
   {
     TIME0flag_20ms=1;
     getSpeed();
-    Motor_pid(speed_hope,leftMotorSpeed,rightMotorSpeed);
+    if(!qipao_flag)
+      Motor_pid(speed_hope,leftMotorSpeed,rightMotorSpeed);
+    else
+      Motor_Stop(leftMotorSpeed,rightMotorSpeed);
     
   }
   if(count_pit0%59==0)
@@ -122,7 +143,7 @@ void pta_isr(void)
       while(1)
       {
         getSpeed();
-        Motor_pid_Stop(leftMotorSpeed,rightMotorSpeed);
+        //Motor_pid_Stop(leftMotorSpeed,rightMotorSpeed);
       }
     } 
 	}
